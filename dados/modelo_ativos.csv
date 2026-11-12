@@ -1,0 +1,5 @@
+nome,classe,emissor,indexador,retorno_esperado_real_aa,volatilidade_aa,liquidez_dias,taxa_adm_aa,aplicacao_minima,rating,tributacao,observacoes
+EXEMPLO Fundo Renda Fixa A,Renda fixa,Gestora X,CDI,0.04,0.02,1,0.005,1000,AAA,come-cotas,linha de exemplo: apague
+EXEMPLO CDB Banco Y,Renda fixa,Banco Y,IPCA+,0.06,0.01,720,0,5000,AA,tabela regressiva,linha de exemplo: apague
+EXEMPLO Fundo Multimercado B,Multimercado,Gestora Z,CDI+,0.05,0.07,30,0.015,5000,,come-cotas,linha de exemplo: apague
+EXEMPLO Fundo de Ações C,Ações Brasil,Gestora W,Ibovespa,0.07,0.20,5,0.02,1000,,15% sobre ganho,linha de exemplo: apague
