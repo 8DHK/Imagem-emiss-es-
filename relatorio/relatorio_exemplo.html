@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Relatório de Performance — Exemplo</title>
+<style>
+:root{
+  --bg:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --mut:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --line:rgba(11,11,11,.10);
+  --s1:#2a78d6; --s2:#eb6834; --band:rgba(42,120,214,.10);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --mut:#898781;
+    --grid:#2c2c2a; --axis:#383835; --line:rgba(255,255,255,.10);
+    --s1:#3987e5; --s2:#d95926; --band:rgba(57,135,229,.16); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --mut:#898781;
+  --grid:#2c2c2a; --axis:#383835; --line:rgba(255,255,255,.10);
+  --s1:#3987e5; --s2:#d95926; --band:rgba(57,135,229,.16); color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:860px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:1.6rem;line-height:1.2;margin:0 0 4px}
+h2{font-size:1.25rem;margin:40px 0 4px}
+h3{font-size:1.02rem;margin:26px 0 6px}
+p{margin:8px 0}
+.sub{color:var(--ink2);margin:0 0 16px}
+.aviso{border:1px solid var(--line);border-left:4px solid var(--s2);background:var(--surface);padding:12px 14px;border-radius:8px;font-size:.92rem;color:var(--ink2)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;margin:12px 0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:16px 0}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.kpi .l{font-size:.8rem;color:var(--ink2)}
+.kpi .v{font-size:1.65rem;font-weight:650;line-height:1.2;margin:2px 0}
+.kpi .n{font-size:.82rem;color:var(--ink2)}
+.q{display:inline-block;font-size:.72rem;font-weight:650;letter-spacing:.04em;text-transform:uppercase;color:var(--ink2);margin-top:28px}
+.chart{width:100%;height:auto;display:block;overflow:visible}
+.grid{stroke:var(--grid);stroke-width:1}
+.axis{stroke:var(--axis);stroke-width:1}
+.ref{stroke:var(--ink2);stroke-width:1;stroke-dasharray:4 4}
+.tick{fill:var(--mut);font-size:11px;font-variant-numeric:tabular-nums}
+.dlabel{fill:var(--ink);font-size:12px}
+.band{fill:var(--band)}
+.area{opacity:.16}
+.xhair{stroke:var(--axis);stroke-width:1}
+.dot{fill:var(--surface);stroke-width:2}
+.wrap{position:relative}
+.tip{position:absolute;pointer-events:none;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.8rem;box-shadow:0 4px 16px rgba(0,0,0,.14);display:none;z-index:2;white-space:nowrap}
+.tip b{display:block;margin-bottom:2px}
+.tip i{display:inline-block;width:10px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.leg{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.82rem;color:var(--ink2);margin:6px 0 0}
+.leg i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--ink2);font-size:.78rem;white-space:nowrap}
+table.num td:not(:first-child){font-variant-numeric:tabular-nums}
+table.small{font-size:.8rem}
+details{margin:8px 0}
+summary{cursor:pointer;color:var(--ink2);font-size:.85rem}
+ul{padding-left:20px;margin:8px 0}
+li{margin:5px 0}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:1px 10px;font-size:.78rem;color:var(--ink2)}
+footer{margin-top:40px;color:var(--ink2);font-size:.8rem}
+@media (max-width:520px){h1{font-size:1.35rem}.kpi .v{font-size:1.4rem}}
+</style>
+</head>
+<body>
+<main>
+
+<p class="sub">Exemplo de relatório · Cliente fictício · Posição em 31/out/2026</p>
+<h1>Relatório de performance — Plano R$ 1 milhão</h1>
+<div class="aviso"><strong>Dados fictícios.</strong> Todos os números foram simulados e calibrados com o exercício 6.3.8 para demonstrar a estrutura. Eles não representam mercado, cliente ou recomendação reais.</div>
+
+<span class="q">Resumo — as três perguntas</span>
+<div class="kpis">
+  <div class="kpi"><div class="l">1 · Onde estou frente à meta?</div><div class="v">27,7% da meta</div><div class="n">R$ 277.161 em R$ de hoje, de R$ 1.000.000. A trajetória do plano pedia R$ 266.673: você está R$ 10.488 à frente, mas por causa do aporte extra, não do retorno.</div></div>
+  <div class="kpi"><div class="l">2 · O que move a trajetória?</div><div class="v">2,50% real</div><div class="n">nos 12 meses, contra 6,84% necessários. Renda fixa e multimercado entregaram; ações ficaram em 0,20%.</div></div>
+  <div class="kpi"><div class="l">3 · O que decidir?</div><div class="v">Ajuste de rota</div><div class="n">Aumentar aporte, prazo ou retorno (opções no bloco 3). Perda máxima de 1,33% está dentro do limite de 8%.</div></div>
+</div>
+<p><span class="pill">⚠ Abaixo do ritmo necessário</span> O retorno real de 2,50% está abaixo dos 6,84% a.a. exigidos desde o início do plano. Esta defasagem é o ponto de atenção, não a comparação com o benchmark.</p>
+
+<h2>1. Contexto do plano de investimento</h2>
+<p class="sub">O objetivo convertido em parâmetros técnicos.</p>
+<div class="tw"><table class=""><thead><tr><th>Parâmetro</th><th>Valor</th></tr></thead><tbody><tr><td>Objetivo</td><td>R$ 1.000.000 em 15 anos (poder de compra do início do plano)</td></tr><tr><td>Patrimônio inicial / aporte mensal</td><td>R$ 200.000 / R$ 1.500 (reajustado pelo IPCA)</td></tr><tr><td>Retorno real necessário</td><td><strong>6,84% a.a.</strong> desde o início · <strong>6,60% a.a.</strong> a partir de hoje</td></tr><tr><td>Perfil e tolerância</td><td>Moderado · perda máxima tolerada de 8%</td></tr><tr><td>Alocação-alvo</td><td>60% renda fixa indexada · 30% ações Brasil · 10% multimercado crédito</td></tr><tr><td>Liquidez e tributação</td><td>Reserva de emergência fora da carteira · retornos líquidos de IR (premissa do exemplo)</td></tr></tbody></table></div>
+
+<h2>2. Evolução da performance em relação à meta</h2>
+<h3 id="g1-t">Trajetória da carteira vs. retorno necessário (base 100, nominal)</h3>
+<p class="sub">A carteira está +4,34 p.p. por ano abaixo do ritmo que levaria à meta. Linhas de referência (100% renda fixa e 100% ações) são apenas ilustrativas.</p>
+<div class="card wrap" data-chart="g1"><svg class="chart" id="g1" viewBox="0 0 760 320" role="img" aria-labelledby="g1-t">
+<line x1="56" x2="642" y1="286.0" y2="286.0" class="grid"/>
+<text x="48" y="290.0" class="tick" text-anchor="end">90</text>
+<line x1="56" x2="642" y1="225.6" y2="225.6" class="grid"/>
+<text x="48" y="229.6" class="tick" text-anchor="end">100</text>
+<line x1="56" x2="642" y1="165.1" y2="165.1" class="grid"/>
+<text x="48" y="169.1" class="tick" text-anchor="end">110</text>
+<line x1="56" x2="642" y1="104.7" y2="104.7" class="grid"/>
+<text x="48" y="108.7" class="tick" text-anchor="end">120</text>
+<line x1="56" x2="642" y1="44.2" y2="44.2" class="grid"/>
+<text x="48" y="48.2" class="tick" text-anchor="end">130</text>
+<text x="56.0" y="308" class="tick" text-anchor="middle">início</text>
+<text x="153.7" y="308" class="tick" text-anchor="middle">fev/25</text>
+<text x="251.3" y="308" class="tick" text-anchor="middle">jun/25</text>
+<text x="349.0" y="308" class="tick" text-anchor="middle">out/25</text>
+<text x="446.7" y="308" class="tick" text-anchor="middle">fev/26</text>
+<text x="544.3" y="308" class="tick" text-anchor="middle">jun/26</text>
+<text x="642.0" y="308" class="tick" text-anchor="middle">out/26</text>
+<line x1="56" x2="642" y1="286.0" y2="286.0" class="axis"/>
+<path d="M56.0,225.6 L80.4,236.7 L104.8,232.8 L129.2,230.3 L153.7,218.6 L178.1,204.7 L202.5,206.1 L226.9,208.3 L251.3,204.1 L275.8,202.8 L300.2,192.4 L324.6,175.6 L349.0,166.9 L373.4,160.0 L397.8,158.9 L422.2,161.7 L446.7,158.7 L471.1,167.7 L495.5,158.7 L519.9,145.0 L544.3,140.9 L568.8,148.0 L593.2,139.3 L617.6,113.5 L642.0,121.8" fill="none" stroke="var(--s1)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M56.0,225.6 L80.4,219.3 L104.8,213.1 L129.2,208.2 L153.7,202.3 L178.1,196.0 L202.5,189.7 L226.9,184.1 L251.3,178.3 L275.8,171.9 L300.2,166.3 L324.6,160.0 L349.0,154.5 L373.4,148.5 L397.8,143.1 L422.2,136.9 L446.7,129.9 L471.1,122.9 L495.5,115.9 L519.9,110.5 L544.3,103.7 L568.8,97.6 L593.2,91.8 L617.6,85.1 L642.0,78.0" fill="none" stroke="var(--s2)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 4"/>
+<path d="M56.0,225.6 L80.4,219.1 L104.8,216.7 L129.2,214.0 L153.7,206.7 L178.1,200.6 L202.5,195.1 L226.9,190.4 L251.3,188.0 L275.8,187.7 L300.2,182.2 L324.6,174.9 L349.0,171.2 L373.4,166.9 L397.8,162.0 L422.2,157.2 L446.7,150.3 L471.1,143.0 L495.5,136.4 L519.9,132.9 L544.3,126.7 L568.8,121.5 L593.2,116.3 L617.6,114.7 L642.0,111.4" fill="none" stroke="var(--mut)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M56.0,225.6 L80.4,278.6 L104.8,273.0 L129.2,271.6 L153.7,250.8 L178.1,220.0 L202.5,234.9 L226.9,251.6 L251.3,243.5 L275.8,242.0 L300.2,221.6 L324.6,182.7 L349.0,162.1 L373.4,150.6 L397.8,158.6 L422.2,179.4 L446.7,184.3 L471.1,229.0 L495.5,216.4 L519.9,183.9 L544.3,184.0 L568.8,217.0 L593.2,201.9 L617.6,127.3 L642.0,160.8" fill="none" stroke="var(--mut)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="2 3"/>
+<text x="648" y="82.0" class="dlabel">Necessário p/ meta</text>
+<text x="648" y="115.4" class="dlabel">100% renda fixa</text>
+<text x="648" y="130.4" class="dlabel">Carteira</text>
+<text x="648" y="164.8" class="dlabel">100% ações</text>
+<line class="xhair" y1="14" y2="286" x1="0" x2="0" visibility="hidden"/>
+<circle class="dot" r="4" visibility="hidden"/>
+<circle class="dot" r="4" visibility="hidden"/>
+<circle class="dot" r="4" visibility="hidden"/>
+<circle class="dot" r="4" visibility="hidden"/>
+<rect class="hit" x="56" y="14" width="586" height="272" fill="transparent"/>
+</svg><div class="tip"></div></div>
+<details><summary>Ver dados do gráfico</summary><div class="tw"><table class="num small"><thead><tr><th>Mês</th><th>Carteira</th><th>Necessário p/ meta</th><th>100% renda fixa</th><th>100% ações</th></tr></thead><tbody><tr><td>início</td><td>100,0</td><td>100,0</td><td>100,0</td><td>100,0</td></tr><tr><td>nov/24</td><td>98,1</td><td>101,0</td><td>101,1</td><td>91,2</td></tr><tr><td>dez/24</td><td>98,8</td><td>102,1</td><td>101,5</td><td>92,1</td></tr><tr><td>jan/25</td><td>99,2</td><td>102,9</td><td>101,9</td><td>92,4</td></tr><tr><td>fev/25</td><td>101,2</td><td>103,8</td><td>103,1</td><td>95,8</td></tr><tr><td>mar/25</td><td>103,4</td><td>104,9</td><td>104,1</td><td>100,9</td></tr><tr><td>abr/25</td><td>103,2</td><td>105,9</td><td>105,0</td><td>98,5</td></tr><tr><td>mai/25</td><td>102,9</td><td>106,9</td><td>105,8</td><td>95,7</td></tr><tr><td>jun/25</td><td>103,6</td><td>107,8</td><td>106,2</td><td>97,0</td></tr><tr><td>jul/25</td><td>103,8</td><td>108,9</td><td>106,3</td><td>97,3</td></tr><tr><td>ago/25</td><td>105,5</td><td>109,8</td><td>107,2</td><td>100,7</td></tr><tr><td>set/25</td><td>108,3</td><td>110,8</td><td>108,4</td><td>107,1</td></tr><tr><td>out/25</td><td>109,7</td><td>111,8</td><td>109,0</td><td>110,5</td></tr><tr><td>nov/25</td><td>110,8</td><td>112,8</td><td>109,7</td><td>112,4</td></tr><tr><td>dez/25</td><td>111,0</td><td>113,6</td><td>110,5</td><td>111,1</td></tr><tr><td>jan/26</td><td>110,6</td><td>114,7</td><td>111,3</td><td>107,6</td></tr><tr><td>fev/26</td><td>111,1</td><td>115,8</td><td>112,4</td><td>106,8</td></tr><tr><td>mar/26</td><td>109,6</td><td>117,0</td><td>113,7</td><td>99,4</td></tr><tr><td>abr/26</td><td>111,1</td><td>118,1</td><td>114,8</td><td>101,5</td></tr><tr><td>mai/26</td><td>113,3</td><td>119,0</td><td>115,3</td><td>106,9</td></tr><tr><td>jun/26</td><td>114,0</td><td>120,2</td><td>116,3</td><td>106,9</td></tr><tr><td>jul/26</td><td>112,8</td><td>121,2</td><td>117,2</td><td>101,4</td></tr><tr><td>ago/26</td><td>114,3</td><td>122,1</td><td>118,1</td><td>103,9</td></tr><tr><td>set/26</td><td>118,5</td><td>123,2</td><td>118,3</td><td>116,3</td></tr><tr><td>out/26</td><td>117,2</td><td>124,4</td><td>118,9</td><td>110,7</td></tr></tbody></table></div></details>
+
+<h3 id="g2-t">Faixa de viabilidade da meta (R$ mil de hoje)</h3>
+<p class="sub">Projeção a partir de hoje, 13 anos restantes, aporte atual reajustado pela inflação. A faixa sombreada vai do cenário pessimista ao otimista (retorno real anual).</p>
+<div class="card wrap" data-chart="g2"><svg class="chart" id="g2" viewBox="0 0 760 330" role="img" aria-labelledby="g2-t">
+<line x1="56" x2="642" y1="296.0" y2="296.0" class="grid"/>
+<text x="48" y="300.0" class="tick" text-anchor="end">0</text>
+<line x1="56" x2="642" y1="241.8" y2="241.8" class="grid"/>
+<text x="48" y="245.8" class="tick" text-anchor="end">250</text>
+<line x1="56" x2="642" y1="187.5" y2="187.5" class="grid"/>
+<text x="48" y="191.5" class="tick" text-anchor="end">500</text>
+<line x1="56" x2="642" y1="133.3" y2="133.3" class="grid"/>
+<text x="48" y="137.3" class="tick" text-anchor="end">750</text>
+<line x1="56" x2="642" y1="79.1" y2="79.1" class="grid"/>
+<text x="48" y="83.1" class="tick" text-anchor="end">1.000</text>
+<line x1="56" x2="642" y1="24.8" y2="24.8" class="grid"/>
+<text x="48" y="28.8" class="tick" text-anchor="end">1.250</text>
+<text x="56.0" y="318" class="tick" text-anchor="middle">+0a</text>
+<text x="101.1" y="318" class="tick" text-anchor="middle">+1a</text>
+<text x="146.2" y="318" class="tick" text-anchor="middle">+2a</text>
+<text x="191.2" y="318" class="tick" text-anchor="middle">+3a</text>
+<text x="236.3" y="318" class="tick" text-anchor="middle">+4a</text>
+<text x="281.4" y="318" class="tick" text-anchor="middle">+5a</text>
+<text x="326.5" y="318" class="tick" text-anchor="middle">+6a</text>
+<text x="371.5" y="318" class="tick" text-anchor="middle">+7a</text>
+<text x="416.6" y="318" class="tick" text-anchor="middle">+8a</text>
+<text x="461.7" y="318" class="tick" text-anchor="middle">+9a</text>
+<text x="506.8" y="318" class="tick" text-anchor="middle">+10a</text>
+<text x="551.8" y="318" class="tick" text-anchor="middle">+11a</text>
+<text x="596.9" y="318" class="tick" text-anchor="middle">+12a</text>
+<text x="642.0" y="318" class="tick" text-anchor="middle">+13a</text>
+<line x1="56" x2="642" y1="296.0" y2="296.0" class="axis"/>
+<polygon points="56.0,235.9 78.5,231.8 101.1,227.6 123.6,223.3 146.2,218.8 168.7,214.2 191.2,209.4 213.8,204.4 236.3,199.3 258.8,194.0 281.4,188.5 303.9,182.8 326.5,177.0 349.0,170.9 371.5,164.6 394.1,158.1 416.6,151.4 439.2,144.4 461.7,137.2 484.2,129.8 506.8,122.1 529.3,114.1 551.8,105.9 574.4,97.3 596.9,88.5 619.5,79.4 642.0,70.0 642.0,153.3 619.5,157.0 596.9,160.7 574.4,164.3 551.8,167.8 529.3,171.3 506.8,174.8 484.2,178.2 461.7,181.6 439.2,184.9 416.6,188.2 394.1,191.5 371.5,194.7 349.0,197.9 326.5,201.1 303.9,204.2 281.4,207.2 258.8,210.2 236.3,213.2 213.8,216.2 191.2,219.1 168.7,222.0 146.2,224.8 123.6,227.6 101.1,230.4 78.5,233.2 56.0,235.9" class="band"/>
+<line x1="56" x2="642" y1="79.1" y2="79.1" class="ref"/>
+<text x="64" y="73.1" class="dlabel" style="fill:var(--ink2)">Meta: R$ 1 mi</text>
+<path d="M56.0,235.9 L78.5,233.2 L101.1,230.4 L123.6,227.6 L146.2,224.8 L168.7,222.0 L191.2,219.1 L213.8,216.2 L236.3,213.2 L258.8,210.2 L281.4,207.2 L303.9,204.2 L326.5,201.1 L349.0,197.9 L371.5,194.7 L394.1,191.5 L416.6,188.2 L439.2,184.9 L461.7,181.6 L484.2,178.2 L506.8,174.8 L529.3,171.3 L551.8,167.8 L574.4,164.3 L596.9,160.7 L619.5,157.0 L642.0,153.3" fill="none" stroke="var(--mut)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M56.0,235.9 L78.5,232.6 L101.1,229.2 L123.6,225.7 L146.2,222.2 L168.7,218.6 L191.2,214.9 L213.8,211.1 L236.3,207.3 L258.8,203.3 L281.4,199.3 L303.9,195.2 L326.5,190.9 L349.0,186.6 L371.5,182.2 L394.1,177.7 L416.6,173.1 L439.2,168.4 L461.7,163.6 L484.2,158.7 L506.8,153.7 L529.3,148.5 L551.8,143.3 L574.4,137.9 L596.9,132.4 L619.5,126.8 L642.0,121.1" fill="none" stroke="var(--s1)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M56.0,235.9 L78.5,231.8 L101.1,227.6 L123.6,223.3 L146.2,218.8 L168.7,214.2 L191.2,209.4 L213.8,204.4 L236.3,199.3 L258.8,194.0 L281.4,188.5 L303.9,182.8 L326.5,177.0 L349.0,170.9 L371.5,164.6 L394.1,158.1 L416.6,151.4 L439.2,144.4 L461.7,137.2 L484.2,129.8 L506.8,122.1 L529.3,114.1 L551.8,105.9 L574.4,97.3 L596.9,88.5 L619.5,79.4 L642.0,70.0" fill="none" stroke="var(--mut)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="2 3"/>
+<text x="648" y="74.0" class="dlabel">Otimista (7,0%)</text>
+<text x="648" y="125.1" class="dlabel">Realista (4,5%)</text>
+<text x="648" y="157.3" class="dlabel">Pessimista (2,5%)</text>
+<line class="xhair" y1="14" y2="296" x1="0" x2="0" visibility="hidden"/>
+<circle class="dot" r="4" visibility="hidden"/>
+<circle class="dot" r="4" visibility="hidden"/>
+<circle class="dot" r="4" visibility="hidden"/>
+<rect class="hit" x="56" y="14" width="586" height="282" fill="transparent"/>
+</svg><div class="tip"></div></div>
+<div class="tw"><table class="num"><thead><tr><th>Cenário (retorno real a.a.)</th><th>Patrimônio ao fim do prazo (R$ de hoje)</th><th>Meta atingida?</th></tr></thead><tbody><tr><td>Pessimista (2,5%)</td><td>R$ 657.706</td><td>Não (faltam R$ 342.294)</td></tr><tr><td>Realista (4,5%)</td><td>R$ 806.381</td><td>Não (faltam R$ 193.619)</td></tr><tr><td>Otimista (7,0%)</td><td>R$ 1.041.935</td><td>Sim</td></tr></tbody></table></div>
+<details><summary>Ver dados do gráfico</summary><div class="tw"><table class="num small"><thead><tr><th>Horizonte</th><th>Pessimista</th><th>Realista</th><th>Otimista</th></tr></thead><tbody><tr><td>+0 anos</td><td>R$ 277.161</td><td>R$ 277.161</td><td>R$ 277.161</td></tr><tr><td>+0,5 anos</td><td>R$ 289.650</td><td>R$ 292.411</td><td>R$ 295.825</td></tr><tr><td>+1 anos</td><td>R$ 302.295</td><td>R$ 308.001</td><td>R$ 315.132</td></tr><tr><td>+1,5 anos</td><td>R$ 315.097</td><td>R$ 323.938</td><td>R$ 335.103</td></tr><tr><td>+2 anos</td><td>R$ 328.058</td><td>R$ 340.229</td><td>R$ 355.762</td></tr><tr><td>+2,5 anos</td><td>R$ 341.179</td><td>R$ 356.883</td><td>R$ 377.131</td></tr><tr><td>+3 anos</td><td>R$ 354.464</td><td>R$ 373.908</td><td>R$ 399.236</td></tr><tr><td>+3,5 anos</td><td>R$ 367.914</td><td>R$ 391.311</td><td>R$ 422.101</td></tr><tr><td>+4 anos</td><td>R$ 381.531</td><td>R$ 409.102</td><td>R$ 445.753</td></tr><tr><td>+4,5 anos</td><td>R$ 395.317</td><td>R$ 427.289</td><td>R$ 470.218</td></tr><tr><td>+5 anos</td><td>R$ 409.275</td><td>R$ 445.880</td><td>R$ 495.526</td></tr><tr><td>+5,5 anos</td><td>R$ 423.406</td><td>R$ 464.885</td><td>R$ 521.704</td></tr><tr><td>+6 anos</td><td>R$ 437.712</td><td>R$ 484.313</td><td>R$ 548.783</td></tr><tr><td>+6,5 anos</td><td>R$ 452.196</td><td>R$ 504.173</td><td>R$ 576.794</td></tr><tr><td>+7 anos</td><td>R$ 466.860</td><td>R$ 524.475</td><td>R$ 605.768</td></tr><tr><td>+7,5 anos</td><td>R$ 481.706</td><td>R$ 545.229</td><td>R$ 635.740</td></tr><tr><td>+8 anos</td><td>R$ 496.737</td><td>R$ 566.445</td><td>R$ 666.742</td></tr><tr><td>+8,5 anos</td><td>R$ 511.954</td><td>R$ 588.133</td><td>R$ 698.812</td></tr><tr><td>+9 anos</td><td>R$ 527.361</td><td>R$ 610.303</td><td>R$ 731.985</td></tr><tr><td>+9,5 anos</td><td>R$ 542.959</td><td>R$ 632.967</td><td>R$ 766.299</td></tr><tr><td>+10 anos</td><td>R$ 558.750</td><td>R$ 656.135</td><td>R$ 801.794</td></tr><tr><td>+10,5 anos</td><td>R$ 574.738</td><td>R$ 679.819</td><td>R$ 838.511</td></tr><tr><td>+11 anos</td><td>R$ 590.924</td><td>R$ 704.030</td><td>R$ 876.490</td></tr><tr><td>+11,5 anos</td><td>R$ 607.312</td><td>R$ 728.779</td><td>R$ 915.777</td></tr><tr><td>+12 anos</td><td>R$ 623.903</td><td>R$ 754.079</td><td>R$ 956.415</td></tr><tr><td>+12,5 anos</td><td>R$ 640.700</td><td>R$ 779.943</td><td>R$ 998.452</td></tr><tr><td>+13 anos</td><td>R$ 657.706</td><td>R$ 806.381</td><td>R$ 1.041.935</td></tr></tbody></table></div></details>
+
+<h2>3. Análise técnica e recomendações</h2>
+
+<h3>3.1 Retorno por período e metodologia</h3>
+<p class="sub">TWR remove o efeito de aportes e resgates e avalia a gestão. MWR (TIR) mostra o que o cliente de fato ganhou, dado o momento dos aportes. A diferença entre os dois é informação: aqui ela vem do aporte extra de R$ 40 mil (mar/26) e do resgate de R$ 15 mil (ago/26).</p>
+<div class="tw"><table class="num"><thead><tr><th>Período</th><th>Carteira (TWR)</th><th>Carteira real</th><th>Benchmark</th><th>vs. benchmark</th><th>MWR (TIR do cliente)</th></tr></thead><tbody><tr><td>Mês (out/26)</td><td>-1,15%</td><td>-1,55%</td><td>-0,96%</td><td>-0,19 p.p.</td><td>—</td></tr><tr><td>Trimestre (ago–out/26)</td><td>3,84%</td><td>2,83%</td><td>4,91%</td><td>-1,07 p.p.</td><td>3,83%</td></tr><tr><td>Ano corrente (jan–out/26)</td><td>5,53%</td><td>1,86%</td><td>6,33%</td><td>-0,79 p.p.</td><td>5,63%</td></tr><tr><td>12 meses</td><td>6,80%</td><td>2,50%</td><td>8,20%</td><td>-1,40 p.p.</td><td>6,89%</td></tr><tr><td>Desde o início (24 meses)</td><td>17,17%</td><td>7,50%</td><td>18,20%</td><td>-1,03 p.p.</td><td>17,20%</td></tr></tbody></table></div>
+
+<h3>3.2 Retorno necessário × retorno atual</h3>
+<div class="tw"><table class="num"><thead><tr><th></th><th>Valor</th></tr></thead><tbody><tr><td>Retorno real necessário (desde o início do plano)</td><td><strong>6,84% a.a.</strong></td></tr><tr><td>Retorno real atual (12 meses)</td><td><strong>2,50%</strong></td></tr><tr><td>Retorno real atual (anualizado desde o início)</td><td>3,68%</td></tr><tr><td>Defasagem</td><td>-4,34 p.p. ao ano</td></tr><tr><td>Ajuste de rota</td><td>ver alavancas abaixo</td></tr></tbody></table></div><br>
+
+<h3>3.3 Risco</h3>
+<div class="tw"><table class="num"><thead><tr><th>Métrica</th><th>12 meses</th><th>Desde o início</th><th>Como ler</th></tr></thead><tbody><tr><td>Volatilidade anualizada</td><td>5,10%</td><td>4,68%</td><td>desvio-padrão mensal × √12</td></tr><tr><td>Drawdown máximo</td><td>-1,33%</td><td>-1,85%</td><td>limite tolerado: -8%</td></tr><tr><td>Tempo de recuperação</td><td>—</td><td>2 mês(es) para recuperar</td><td>do fundo até o pico anterior</td></tr><tr><td>Índice de Sharpe</td><td>-0,12</td><td>0,11</td><td>excesso sobre o CDI ÷ volatilidade (negativo = rendeu menos que o CDI)</td></tr><tr><td>Índice de Sortino</td><td>-0,19</td><td>0,17</td><td>só penaliza volatilidade negativa</td></tr><tr><td>Beta vs. Ibovespa</td><td>0,30</td><td>0,31</td><td>sensibilidade a movimentos do índice</td></tr></tbody></table></div>
+<h3 id="g4-t">Drawdown desde o início</h3>
+<p class="sub">Perda máxima de 1,85% (em nov/24), 2 mês(es) para recuperar. Limite do cliente: 8%.</p>
+<div class="card wrap" data-chart="g4"><svg class="chart" id="g4" viewBox="0 0 760 240" role="img" aria-labelledby="g4-t">
+<line x1="56" x2="642" y1="206.0" y2="206.0" class="grid"/>
+<text x="48" y="210.0" class="tick" text-anchor="end">-10%</text>
+<line x1="56" x2="642" y1="167.6" y2="167.6" class="grid"/>
+<text x="48" y="171.6" class="tick" text-anchor="end">-8%</text>
+<line x1="56" x2="642" y1="129.2" y2="129.2" class="grid"/>
+<text x="48" y="133.2" class="tick" text-anchor="end">-6%</text>
+<line x1="56" x2="642" y1="90.8" y2="90.8" class="grid"/>
+<text x="48" y="94.8" class="tick" text-anchor="end">-4%</text>
+<line x1="56" x2="642" y1="52.4" y2="52.4" class="grid"/>
+<text x="48" y="56.4" class="tick" text-anchor="end">-2%</text>
+<line x1="56" x2="642" y1="14.0" y2="14.0" class="grid"/>
+<text x="48" y="18.0" class="tick" text-anchor="end">0%</text>
+<text x="56.0" y="228" class="tick" text-anchor="middle">início</text>
+<text x="153.7" y="228" class="tick" text-anchor="middle">fev/25</text>
+<text x="251.3" y="228" class="tick" text-anchor="middle">jun/25</text>
+<text x="349.0" y="228" class="tick" text-anchor="middle">out/25</text>
+<text x="446.7" y="228" class="tick" text-anchor="middle">fev/26</text>
+<text x="544.3" y="228" class="tick" text-anchor="middle">jun/26</text>
+<text x="642.0" y="228" class="tick" text-anchor="middle">out/26</text>
+<line x1="56" x2="642" y1="206.0" y2="206.0" class="axis"/>
+<polygon points="56.0,14.0 56.0,14.0 80.4,49.6 104.8,37.1 129.2,29.1 153.7,14.0 178.1,14.0 202.5,18.2 226.9,24.9 251.3,14.0 275.8,14.0 300.2,14.0 324.6,14.0 349.0,14.0 373.4,14.0 397.8,14.0 422.2,22.1 446.7,14.0 471.1,39.6 495.5,14.0 519.9,14.0 544.3,14.0 568.8,33.6 593.2,14.0 617.6,14.0 642.0,36.1 642.0,14.0" class="area" style="fill:var(--s1)"/>
+<line x1="56" x2="642" y1="167.6" y2="167.6" class="ref"/>
+<text x="64" y="161.6" class="dlabel" style="fill:var(--ink2)">Limite −8%</text>
+<path d="M56.0,14.0 L80.4,49.6 L104.8,37.1 L129.2,29.1 L153.7,14.0 L178.1,14.0 L202.5,18.2 L226.9,24.9 L251.3,14.0 L275.8,14.0 L300.2,14.0 L324.6,14.0 L349.0,14.0 L373.4,14.0 L397.8,14.0 L422.2,22.1 L446.7,14.0 L471.1,39.6 L495.5,14.0 L519.9,14.0 L544.3,14.0 L568.8,33.6 L593.2,14.0 L617.6,14.0 L642.0,36.1" fill="none" stroke="var(--s1)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="648" y="40.1" class="dlabel">Drawdown</text>
+<line class="xhair" y1="14" y2="206" x1="0" x2="0" visibility="hidden"/>
+<circle class="dot" r="4" visibility="hidden"/>
+<rect class="hit" x="56" y="14" width="586" height="192" fill="transparent"/>
+</svg><div class="tip"></div></div>
+<details><summary>Ver dados do gráfico</summary><div class="tw"><table class="num small"><thead><tr><th>Mês</th><th>Drawdown</th></tr></thead><tbody><tr><td>início</td><td>-0,00%</td></tr><tr><td>nov/24</td><td>-1,85%</td></tr><tr><td>dez/24</td><td>-1,20%</td></tr><tr><td>jan/25</td><td>-0,78%</td></tr><tr><td>fev/25</td><td>-0,00%</td></tr><tr><td>mar/25</td><td>-0,00%</td></tr><tr><td>abr/25</td><td>-0,22%</td></tr><tr><td>mai/25</td><td>-0,57%</td></tr><tr><td>jun/25</td><td>-0,00%</td></tr><tr><td>jul/25</td><td>-0,00%</td></tr><tr><td>ago/25</td><td>-0,00%</td></tr><tr><td>set/25</td><td>-0,00%</td></tr><tr><td>out/25</td><td>-0,00%</td></tr><tr><td>nov/25</td><td>-0,00%</td></tr><tr><td>dez/25</td><td>-0,00%</td></tr><tr><td>jan/26</td><td>-0,42%</td></tr><tr><td>fev/26</td><td>-0,00%</td></tr><tr><td>mar/26</td><td>-1,33%</td></tr><tr><td>abr/26</td><td>-0,00%</td></tr><tr><td>mai/26</td><td>-0,00%</td></tr><tr><td>jun/26</td><td>-0,00%</td></tr><tr><td>jul/26</td><td>-1,02%</td></tr><tr><td>ago/26</td><td>-0,00%</td></tr><tr><td>set/26</td><td>-0,00%</td></tr><tr><td>out/26</td><td>-1,15%</td></tr></tbody></table></div></details>
+
+<h3 id="g3-t">De onde veio o retorno (contribuição por classe, 12 meses)</h3>
+<p class="sub">Contribuição = peso × retorno da classe. Soma +6,55 p.p. do retorno da carteira de 6,80%; a diferença (+0,25 p.p.) é efeito de rebalanceamento mensal.</p>
+<div class="card"><svg class="chart" id="g3" viewBox="0 0 760 178" role="img" aria-labelledby="g3-t">
+<line x1="170.0" x2="170.0" y1="10" y2="152" class="grid"/>
+<text x="170.0" y="170" class="tick" text-anchor="middle">0 p.p.</text>
+<line x1="256.7" x2="256.7" y1="10" y2="152" class="grid"/>
+<text x="256.7" y="170" class="tick" text-anchor="middle">1 p.p.</text>
+<line x1="343.3" x2="343.3" y1="10" y2="152" class="grid"/>
+<text x="343.3" y="170" class="tick" text-anchor="middle">2 p.p.</text>
+<line x1="430.0" x2="430.0" y1="10" y2="152" class="grid"/>
+<text x="430.0" y="170" class="tick" text-anchor="middle">3 p.p.</text>
+<line x1="516.7" x2="516.7" y1="10" y2="152" class="grid"/>
+<text x="516.7" y="170" class="tick" text-anchor="middle">4 p.p.</text>
+<line x1="603.3" x2="603.3" y1="10" y2="152" class="grid"/>
+<text x="603.3" y="170" class="tick" text-anchor="middle">5 p.p.</text>
+<line x1="690.0" x2="690.0" y1="10" y2="152" class="grid"/>
+<text x="690.0" y="170" class="tick" text-anchor="middle">6 p.p.</text>
+<text x="158" y="34" class="dlabel" text-anchor="end" style="fill:var(--ink)">Renda fixa indexada</text>
+<rect x="170.0" y="18" width="471.3" height="22" rx="3" fill="var(--s1)"><title>Renda fixa indexada: +5,44 p.p.</title></rect>
+<text x="649.3" y="34" class="dlabel" style="fill:var(--ink)" text-anchor="start">+5,44 p.p.</text>
+<text x="158" y="80" class="dlabel" text-anchor="end" style="fill:var(--ink)">Ações brasileiras</text>
+<rect x="170.0" y="64" width="5.2" height="22" rx="3" fill="var(--s1)"><title>Ações brasileiras: +0,06 p.p.</title></rect>
+<text x="183.2" y="80" class="dlabel" style="fill:var(--ink)" text-anchor="start">+0,06 p.p.</text>
+<text x="158" y="126" class="dlabel" text-anchor="end" style="fill:var(--ink)">Multimercado crédito</text>
+<rect x="170.0" y="110" width="91.0" height="22" rx="3" fill="var(--s1)"><title>Multimercado crédito: +1,05 p.p.</title></rect>
+<text x="269.0" y="126" class="dlabel" style="fill:var(--ink)" text-anchor="start">+1,05 p.p.</text>
+<line x1="170.0" x2="170.0" y1="10" y2="152" class="axis"/>
+</svg></div>
+
+<h3>3.4 Decomposição: alocação × seleção</h3>
+<p class="sub">Brinson-Fachler contra o benchmark de política (55% CDI, 35% Ibovespa, 10% CDI). Alocação mede o efeito dos pesos; seleção, dos ativos dentro de cada classe.</p>
+<div class="tw"><table class="num small"><thead><tr><th>Classe</th><th>Peso cart.</th><th>Peso bench.</th><th>Ret. cart.</th><th>Ret. índice</th><th>Contrib.</th><th>Aloc.</th><th>Seleção</th><th>Inter.</th></tr></thead><tbody><tr><td>Renda fixa indexada</td><td>60%</td><td>55%</td><td>9,06%</td><td>7,60%</td><td>+5,44 p.p.</td><td>-0,02 p.p.</td><td>+0,80 p.p.</td><td>+0,07 p.p.</td></tr><tr><td>Ações brasileiras</td><td>30%</td><td>35%</td><td>0,20%</td><td>8,59%</td><td>+0,06 p.p.</td><td>-0,03 p.p.</td><td>-2,94 p.p.</td><td>+0,42 p.p.</td></tr><tr><td>Multimercado crédito</td><td>10%</td><td>10%</td><td>10,50%</td><td>7,60%</td><td>+1,05 p.p.</td><td>-0,00 p.p.</td><td>+0,29 p.p.</td><td>+0,00 p.p.</td></tr><tr><td><strong>Total</strong></td><td>100%</td><td>100%</td><td><strong>6,80%</strong></td><td><strong>8,20%</strong></td><td><strong>+6,55 p.p.</strong></td><td><strong>-0,05 p.p.</strong></td><td><strong>-1,84 p.p.</strong></td><td><strong>+0,49 p.p.</strong></td></tr></tbody></table></div>
+<p>Leitura: a renda fixa e o multimercado superaram seus índices (+1,09 p.p. de seleção). O resultado abaixo do benchmark vem quase todo da <strong>seleção em ações</strong> (-2,94 p.p.), concentrada no choque de liquidez de mar/26.</p>
+
+<h3>3.5 Recomendações para o consultor revisar</h3>
+<ul>
+  <li><strong>Não aumentar ações só para alcançar o benchmark.</strong> A defasagem relevante é frente à meta (+4,34 p.p. ao ano), não frente ao índice (-1,40 p.p.).</li>
+  <li><strong>Investigar a seleção em ações:</strong> quais papéis/fundos sofreram no choque de liquidez e se o problema é pontual ou estrutural.</li>
+  <li><strong>Escolher a alavanca de ajuste</strong> (tabela abaixo). Se o padrão se repetir por mais 12 meses, a revisão do plano deixa de ser opcional.</li>
+  <li><strong>Manter a disciplina de risco:</strong> drawdown máximo de 1,33% está dentro do limite tolerado.</li>
+</ul>
+<div class="tw"><table class=""><thead><tr><th>Alavanca</th><th>O que seria necessário</th><th>Observação</th></tr></thead><tbody><tr><td>A. Aumentar o retorno</td><td>Retorno real necessário a partir de hoje: <strong>6,60% a.a.</strong> (hoje a carteira entrega 2,50% real)</td><td>Exige mais risco — só se o perfil permitir</td></tr><tr><td>B. Aumentar o aporte</td><td>Com retorno real de 4,5%, aporte mensal de <strong>R$ 2.421</strong> (hoje R$ 1.500)</td><td>Não depende de mercado</td></tr><tr><td>C. Estender o prazo</td><td>Com 4,5% real e aporte atual, a meta é atingida em <strong>~18.4 anos</strong> do início (prazo original: 15)</td><td>Ajuste de horizonte</td></tr></tbody></table></div>
+
+<h2>Metodologia e premissas</h2>
+<ul>
+  <li><strong>Retorno necessário:</strong> taxa real que leva R$ 200 mil + R$ 1.500/mês (reajustados pelo IPCA) a R$ 1.000.000 em 15 anos; calculado, não estimado: <strong>6,84% a.a.</strong> desde o início e <strong>6,60% a.a.</strong> a partir de hoje.</li>
+  <li><strong>TWR:</strong> produto dos retornos mensais. <strong>MWR:</strong> TIR dos fluxos mensais, anualizada na janela.</li>
+  <li><strong>Real:</strong> deflacionado pelo IPCA do exemplo. Retornos tratados como líquidos de custos e impostos.</li>
+  <li><strong>Risco:</strong> volatilidade = desvio-padrão mensal × √12. Sharpe/Sortino sobre o CDI. Beta por regressão mensal contra o Ibovespa. Drawdown sobre o índice acumulado mensal.</li>
+  <li><strong>Simplificações do exemplo:</strong> granularidade mensal, aportes no início do mês, rebalanceamento mensal para 60/30/10, projeções com aportes ao fim do mês. Com dados reais recomenda-se valor diário.</li>
+  <li>Rentabilidade passada não garante rentabilidade futura. Projeções são cenários, não promessas.</li>
+</ul>
+<footer>Gerado por <code>relatorio/gerar_relatorio.py</code> · dados simulados com semente fixa · conteúdo para revisão do consultor antes de qualquer envio ao cliente.</footer>
+</main>
+
+<script>
+const CH = {"g1": {"w": 760, "xs": [56.0, 80.4, 104.8, 129.2, 153.7, 178.1, 202.5, 226.9, 251.3, 275.8, 300.2, 324.6, 349.0, 373.4, 397.8, 422.2, 446.7, 471.1, 495.5, 519.9, 544.3, 568.8, 593.2, 617.6, 642.0], "xlabels": ["início", "nov/24", "dez/24", "jan/25", "fev/25", "mar/25", "abr/25", "mai/25", "jun/25", "jul/25", "ago/25", "set/25", "out/25", "nov/25", "dez/25", "jan/26", "fev/26", "mar/26", "abr/26", "mai/26", "jun/26", "jul/26", "ago/26", "set/26", "out/26"], "series": [{"name": "Carteira", "color": "--s1", "ys": [225.6, 236.7, 232.8, 230.3, 218.6, 204.7, 206.1, 208.3, 204.1, 202.8, 192.4, 175.6, 166.9, 160.0, 158.9, 161.7, 158.7, 167.7, 158.7, 145.0, 140.9, 148.0, 139.3, 113.5, 121.8], "txt": ["100,0", "98,1", "98,8", "99,2", "101,2", "103,4", "103,2", "102,9", "103,6", "103,8", "105,5", "108,3", "109,7", "110,8", "111,0", "110,6", "111,1", "109,6", "111,1", "113,3", "114,0", "112,8", "114,3", "118,5", "117,2"]}, {"name": "Necessário p/ meta", "color": "--s2", "ys": [225.6, 219.3, 213.1, 208.2, 202.3, 196.0, 189.7, 184.1, 178.3, 171.9, 166.3, 160.0, 154.5, 148.5, 143.1, 136.9, 129.9, 122.9, 115.9, 110.5, 103.7, 97.6, 91.8, 85.1, 78.0], "txt": ["100,0", "101,0", "102,1", "102,9", "103,8", "104,9", "105,9", "106,9", "107,8", "108,9", "109,8", "110,8", "111,8", "112,8", "113,6", "114,7", "115,8", "117,0", "118,1", "119,0", "120,2", "121,2", "122,1", "123,2", "124,4"]}, {"name": "100% renda fixa", "color": "--mut", "ys": [225.6, 219.1, 216.7, 214.0, 206.7, 200.6, 195.1, 190.4, 188.0, 187.7, 182.2, 174.9, 171.2, 166.9, 162.0, 157.2, 150.3, 143.0, 136.4, 132.9, 126.7, 121.5, 116.3, 114.7, 111.4], "txt": ["100,0", "101,1", "101,5", "101,9", "103,1", "104,1", "105,0", "105,8", "106,2", "106,3", "107,2", "108,4", "109,0", "109,7", "110,5", "111,3", "112,4", "113,7", "114,8", "115,3", "116,3", "117,2", "118,1", "118,3", "118,9"]}, {"name": "100% ações", "color": "--mut", "ys": [225.6, 278.6, 273.0, 271.6, 250.8, 220.0, 234.9, 251.6, 243.5, 242.0, 221.6, 182.7, 162.1, 150.6, 158.6, 179.4, 184.3, 229.0, 216.4, 183.9, 184.0, 217.0, 201.9, 127.3, 160.8], "txt": ["100,0", "91,2", "92,1", "92,4", "95,8", "100,9", "98,5", "95,7", "97,0", "97,3", "100,7", "107,1", "110,5", "112,4", "111,1", "107,6", "106,8", "99,4", "101,5", "106,9", "106,9", "101,4", "103,9", "116,3", "110,7"]}]}, "g2": {"w": 760, "xs": [56.0, 78.5, 101.1, 123.6, 146.2, 168.7, 191.2, 213.8, 236.3, 258.8, 281.4, 303.9, 326.5, 349.0, 371.5, 394.1, 416.6, 439.2, 461.7, 484.2, 506.8, 529.3, 551.8, 574.4, 596.9, 619.5, 642.0], "xlabels": ["+0 anos", "+0,5 anos", "+1 anos", "+1,5 anos", "+2 anos", "+2,5 anos", "+3 anos", "+3,5 anos", "+4 anos", "+4,5 anos", "+5 anos", "+5,5 anos", "+6 anos", "+6,5 anos", "+7 anos", "+7,5 anos", "+8 anos", "+8,5 anos", "+9 anos", "+9,5 anos", "+10 anos", "+10,5 anos", "+11 anos", "+11,5 anos", "+12 anos", "+12,5 anos", "+13 anos"], "series": [{"name": "Pessimista (2,5%)", "color": "--mut", "ys": [235.9, 233.2, 230.4, 227.6, 224.8, 222.0, 219.1, 216.2, 213.2, 210.2, 207.2, 204.2, 201.1, 197.9, 194.7, 191.5, 188.2, 184.9, 181.6, 178.2, 174.8, 171.3, 167.8, 164.3, 160.7, 157.0, 153.3], "txt": ["R$ 277 mil", "R$ 290 mil", "R$ 302 mil", "R$ 315 mil", "R$ 328 mil", "R$ 341 mil", "R$ 354 mil", "R$ 368 mil", "R$ 382 mil", "R$ 395 mil", "R$ 409 mil", "R$ 423 mil", "R$ 438 mil", "R$ 452 mil", "R$ 467 mil", "R$ 482 mil", "R$ 497 mil", "R$ 512 mil", "R$ 527 mil", "R$ 543 mil", "R$ 559 mil", "R$ 575 mil", "R$ 591 mil", "R$ 607 mil", "R$ 624 mil", "R$ 641 mil", "R$ 658 mil"]}, {"name": "Realista (4,5%)", "color": "--s1", "ys": [235.9, 232.6, 229.2, 225.7, 222.2, 218.6, 214.9, 211.1, 207.3, 203.3, 199.3, 195.2, 190.9, 186.6, 182.2, 177.7, 173.1, 168.4, 163.6, 158.7, 153.7, 148.5, 143.3, 137.9, 132.4, 126.8, 121.1], "txt": ["R$ 277 mil", "R$ 292 mil", "R$ 308 mil", "R$ 324 mil", "R$ 340 mil", "R$ 357 mil", "R$ 374 mil", "R$ 391 mil", "R$ 409 mil", "R$ 427 mil", "R$ 446 mil", "R$ 465 mil", "R$ 484 mil", "R$ 504 mil", "R$ 524 mil", "R$ 545 mil", "R$ 566 mil", "R$ 588 mil", "R$ 610 mil", "R$ 633 mil", "R$ 656 mil", "R$ 680 mil", "R$ 704 mil", "R$ 729 mil", "R$ 754 mil", "R$ 780 mil", "R$ 806 mil"]}, {"name": "Otimista (7,0%)", "color": "--mut", "ys": [235.9, 231.8, 227.6, 223.3, 218.8, 214.2, 209.4, 204.4, 199.3, 194.0, 188.5, 182.8, 177.0, 170.9, 164.6, 158.1, 151.4, 144.4, 137.2, 129.8, 122.1, 114.1, 105.9, 97.3, 88.5, 79.4, 70.0], "txt": ["R$ 277 mil", "R$ 296 mil", "R$ 315 mil", "R$ 335 mil", "R$ 356 mil", "R$ 377 mil", "R$ 399 mil", "R$ 422 mil", "R$ 446 mil", "R$ 470 mil", "R$ 496 mil", "R$ 522 mil", "R$ 549 mil", "R$ 577 mil", "R$ 606 mil", "R$ 636 mil", "R$ 667 mil", "R$ 699 mil", "R$ 732 mil", "R$ 766 mil", "R$ 802 mil", "R$ 839 mil", "R$ 876 mil", "R$ 916 mil", "R$ 956 mil", "R$ 998 mil", "R$ 1.042 mil"]}]}, "g4": {"w": 760, "xs": [56.0, 80.4, 104.8, 129.2, 153.7, 178.1, 202.5, 226.9, 251.3, 275.8, 300.2, 324.6, 349.0, 373.4, 397.8, 422.2, 446.7, 471.1, 495.5, 519.9, 544.3, 568.8, 593.2, 617.6, 642.0], "xlabels": ["início", "nov/24", "dez/24", "jan/25", "fev/25", "mar/25", "abr/25", "mai/25", "jun/25", "jul/25", "ago/25", "set/25", "out/25", "nov/25", "dez/25", "jan/26", "fev/26", "mar/26", "abr/26", "mai/26", "jun/26", "jul/26", "ago/26", "set/26", "out/26"], "series": [{"name": "Drawdown", "color": "--s1", "ys": [14.0, 49.6, 37.1, 29.1, 14.0, 14.0, 18.2, 24.9, 14.0, 14.0, 14.0, 14.0, 14.0, 14.0, 14.0, 22.1, 14.0, 39.6, 14.0, 14.0, 14.0, 33.6, 14.0, 14.0, 36.1], "txt": ["-0,00%", "-1,85%", "-1,20%", "-0,78%", "-0,00%", "-0,00%", "-0,22%", "-0,57%", "-0,00%", "-0,00%", "-0,00%", "-0,00%", "-0,00%", "-0,00%", "-0,00%", "-0,42%", "-0,00%", "-1,33%", "-0,00%", "-0,00%", "-0,00%", "-1,02%", "-0,00%", "-0,00%", "-1,15%"]}]}};
+document.querySelectorAll('.wrap[data-chart]').forEach(box=>{
+  const id=box.dataset.chart, cfg=CH[id], svg=box.querySelector('svg'), tip=box.querySelector('.tip');
+  const xh=svg.querySelector('.xhair'), dots=[...svg.querySelectorAll('.dot')], hit=svg.querySelector('.hit');
+  const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n);
+  function move(e){
+    const r=svg.getBoundingClientRect(), sc=cfg.w/r.width, x=(e.clientX-r.left)*sc;
+    let k=0,b=1e9; cfg.xs.forEach((v,i)=>{const d=Math.abs(v-x); if(d<b){b=d;k=i}});
+    xh.setAttribute('x1',cfg.xs[k]); xh.setAttribute('x2',cfg.xs[k]); xh.setAttribute('visibility','visible');
+    let html='<b>'+cfg.xlabels[k]+'</b>';
+    cfg.series.forEach((s,j)=>{
+      dots[j].setAttribute('cx',cfg.xs[k]); dots[j].setAttribute('cy',s.ys[k]);
+      dots[j].setAttribute('stroke',css(s.color)); dots[j].setAttribute('visibility','visible');
+      html+='<div><i style="background:'+css(s.color)+'"></i>'+s.name+': '+s.txt[k]+'</div>';
+    });
+    tip.innerHTML=html; tip.style.display='block';
+    const bx=box.getBoundingClientRect(), px=cfg.xs[k]/sc+(r.left-bx.left);
+    const tw=tip.offsetWidth; tip.style.left=Math.min(Math.max(px+12,4),bx.width-tw-4)+'px'; tip.style.top='12px';
+  }
+  function leave(){xh.setAttribute('visibility','hidden');dots.forEach(d=>d.setAttribute('visibility','hidden'));tip.style.display='none'}
+  hit.addEventListener('pointermove',move); hit.addEventListener('pointerleave',leave);
+});
+</script>
+</body>
+</html>
