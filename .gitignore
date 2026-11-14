@@ -1,7 +1,0 @@
-__pycache__/
-*.pyc
-# dados internos e de clientes: nunca commitar
-dados_portfel/
-*.xlsx
-*.zip
-config_*cliente*.json
