@@ -1,8 +1,8 @@
 # Planilha de ativos diligenciados da Portfel (formato visto em mar/2026)
 
 Arquivo: "Planilha de Fundos V4.xlsx" (título interno: "Planilha de ativos diligenciados Março - 2026").
-É uma planilha de **elegibilidade e regras**, não de desempenho. Os valores (percentuais, limites, produtos) ficam
-na planilha; não copie para repositórios. Leia o arquivo atual a cada uso, pois ele muda por versão.
+É uma planilha de **elegibilidade e regras**, não de desempenho. Os valores (percentuais, limites, produtos) são lidos pelo importador e ficam só em `dados_portfel/` (cópia local do Daniel, fora do git).
+Confira `meta.json` (título, hash, data) contra o arquivo anexado: a planilha muda por versão.
 
 ## Abas e o que cada uma traz
 - **Composições** (oculta): por perfil (Conservador, Moderado, Equilibrado, Arrojado, Agressivo), limites por classe
@@ -30,3 +30,8 @@ na planilha; não copie para repositórios. Leia o arquivo atual a cada uso, poi
 - Série histórica de cotas/rentabilidade. Para fundos há o CNPJ, então o caminho é o Informe Diário da CVM
   (dados abertos) ou uma exportação de terminal/plataforma que o Daniel tenha. Sem isso, usar premissas por classe
   (retorno real e volatilidade por classe) e declarar que são estimativas.
+
+## Inconsistências vistas na versão V4 (mar/2026), ao validar as carteiras-modelo
+- `DEBB11` aparece como CONGELADO em Produtos Autorizados, mas entra nas carteiras-modelo Arrojado Qualificado e Agressivo Qualificado.
+- `Trend Valor Brasil` tem teto de 5% e aparece com 7,5% na carteira-modelo Agressivo Qualificado.
+Avisar o Daniel quando uma recomendação depender de um desses itens.

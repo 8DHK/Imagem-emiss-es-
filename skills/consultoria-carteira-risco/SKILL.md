@@ -12,7 +12,7 @@ Ajuda o Daniel (consultor na Portfel) a montar a carteira de um cliente e a most
 - Conversa com lead frio: usar `lead-dialogue`.
 
 ## Entradas (peça o que faltar, nunca invente)
-1. **Planilha de ativos da Portfel** (diligenciada por eles; estrutura em `references/planilha_portfel.md`: traz elegibilidade, limites por perfil e carteiras-modelo, mas **não** retorno nem volatilidade; esses vêm de premissas por classe ou de histórico dos fundos). Formato de referência em `assets/modelo_ativos.csv`; histórico mensal opcional em `assets/modelo_historico_mensal.csv`. A planilha real pode ter outras colunas: mapeie com o Daniel e diga o que foi estimado.
+1. **Planilha de ativos da Portfel** (diligenciada por eles; estrutura em `references/planilha_portfel.md`: traz elegibilidade, limites por perfil e carteiras-modelo, mas **não** retorno nem volatilidade; esses vêm de premissas por classe ou de histórico dos fundos). As regras já importadas ficam em `dados_portfel/` (cópia local, fora do git, com `meta.json` indicando título, hash e data). Se o Daniel anexar uma planilha com título ou hash diferente, reimporte com `scripts/importar_planilha_portfel.py` e avise o que mudou. Formato de referência em `assets/modelo_ativos.csv`; histórico mensal opcional em `assets/modelo_historico_mensal.csv`. A planilha real pode ter outras colunas: mapeie com o Daniel e diga o que foi estimado.
 2. **Cliente:** objetivo (valor em R$ reais), prazo, patrimônio inicial, aporte mensal, perfil e **perda máxima tolerada**.
 3. **Restrições:** liquidez, limite por ativo e por emissor, classes aceitas/vetadas, tributação.
 4. **Premissas de retorno real** (ex.: CDI e IPCA esperados) e regra de rebalanceamento (calendário ou banda).
@@ -21,7 +21,7 @@ Dados do cliente chegam anonimizados (sem nome e CPF). Se vierem identificáveis
 
 ## Fluxo
 1. **Validar os dados.** `python3 scripts/carregar_ativos.py ativos.csv [historico.csv]` lista retorno, volatilidade e correlações e emite AVISOS (histórico curto, volatilidade estimada, correlação por premissa). Repasse os avisos ao Daniel.
-2. **Montar 2 ou 3 carteiras candidatas** que respeitem as restrições. Para cada uma: pesos, justificativa por ativo, retorno real esperado, volatilidade, concentração por ativo/emissor, liquidez.
+2. **Montar 2 ou 3 carteiras candidatas** que respeitem as restrições. Para cada uma: pesos, justificativa por ativo, retorno real esperado, volatilidade, concentração por ativo/emissor, liquidez. **Valide antes de simular:** `python3 scripts/validar_carteira.py --perfil <perfil> --investidor Geral|Qualificado carteira.csv` (colunas `produto`, `peso`, opcional `classe`). Só siga com carteiras sem ERRO; leve os AVISOS ao Daniel. Sem o validador não se recomenda carteira: as regras da Portfel são a base da recomendação.
 3. **Simular** com `scripts/monte_carlo.py` (API em `references/formulas.md`). Entregue: probabilidade de atingir a meta, percentis (P5, P10, P50, P90, P95), mediana **e** média, probabilidade de queda máxima > 20/30/40%, risco de sequência (choque no início vs no fim), alavancas (aporte para 70% de chance, meta compatível com 70%, alocação), sensibilidade (retornos −1 p.p., volatilidade +20%, caudas pesadas, correlações de crise 0,8) e rebalanceamento (nenhum, anual, banda 5 p.p.).
 4. **Comparar ativos** quando perguntado "qual aumenta o risco?": correlação com a carteira, drawdown e volatilidade da carteira com cada ativo, e peso máximo dentro do drawdown tolerado (`scripts/comparar_ativos.py` é o modelo).
 5. **Relatório** em HTML seguindo o capítulo 6.3 (ver abaixo). Modelos prontos: `scripts/gerar_relatorio.py` (performance) e `scripts/simulacao_monte_carlo.py` com `simulacao_monte_carlo_template.html` (Monte Carlo). Rode com `python3 scripts/<script>.py caminho/saida.html`.
@@ -46,6 +46,8 @@ Foco na **meta**, não no benchmark. Um objetivo por gráfico, e cada gráfico c
 
 ## Scripts (Python 3, requer numpy)
 - `scripts/monte_carlo.py`: motor (Cholesky, retornos log-normais mensais, aportes, rebalanceamento anual/banda/nenhum, choques de sequência). Rode a partir da pasta `scripts/`, **sem** a flag `-I`, pois os scripts importam `monte_carlo` localmente.
+- `scripts/importar_planilha_portfel.py`: lê a planilha da Portfel e grava produtos, limites por perfil, carteiras-modelo e regras em `dados_portfel/`.
+- `scripts/validar_carteira.py`: confere a carteira contra as regras (limites por classe e grupo, teto por produto, FIDC, gestão ativa, congelados, qualificado, rating). Testado contra as 9 carteiras-modelo da planilha. Não cobre faixas S1-S5 por banco, Carteiras Finclass em conjunto, liquidez do cliente nem a gestora (a planilha não traz; há só aproximação pelo nome).
 - `scripts/carregar_ativos.py`: lê a planilha no formato do modelo e devolve `mu`, `sig`, `corr`. Para N ativos use `normais(k=N)` e `t_student(k=N)`.
 - `scripts/gerar_relatorio.py`, `simulacao_monte_carlo.py`, `comparar_ativos.py`: implementações de referência com os dados fictícios do exemplo. Para um cliente real, troque as séries e premissas pelas do cliente em vez de reescrever a lógica.
 - A ligação automática "planilha real → carteira → relatório" ainda não está em um único script: o Claude monta as carteiras com `carregar_ativos.py` + `monte_carlo.py` e adapta o relatório de referência.
