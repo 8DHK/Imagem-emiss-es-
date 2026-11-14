@@ -29,3 +29,13 @@
 - O app da sessão pode não abrir os HTMLs gerados no contêiner. Solução que funcionou: publicar como Artifact privado (arquivo sem `<!doctype>/<html>/<head>/<body>`, `<title>` curto) e dar o link.
 - Pastas do computador do Daniel (ex.: `D:\OneDrive\Daniel_Memoria`) podem não estar disponíveis para sessões na nuvem; nesse caso entregar um .zip para ele copiar.
 - Não commitar `__pycache__` (há `.gitignore`).
+
+## Usufruto (decumulação): lições de método
+- Replique primeiro a tabela do plano do cliente com a fórmula V[t+1] = V[t]*(1+r) - 12*retirada. Se bater no centavo, o plano é "retorno constante, retirada no fim do ano", sem risco nem sequência. Conferir assim evita discutir número que não fecha.
+- Convenção anual (retirada no fim do ano) dá meio ano de rendimento a mais sobre cada retirada; com retirada mensal no início do mês o mesmo plano fica sem folga. A "sobra" no fim do plano costuma ser só efeito de convenção.
+- Probabilidade de sucesso de um plano determinístico que termina perto de zero é baixa (≈40% com retorno igual ao assumido): a retirada sustentável com 90% de chance é bem menor que a do cenário constante.
+- Taxa de retirada acima de ~4-5% ao ano para quem tem 50+ anos pede ajuste de retirada, de horizonte ou de retorno. A volatilidade do portfólio muda pouco esse quadro; reduzir volatilidade sem reduzir retirada não resolve.
+- Benchmark é régua de retorno, não de risco. Baixar a meta (ex.: IPCA+4) só reduz volatilidade se a composição mudar (menos duration, menos prefixado e ações). Sempre comparar a meta com o que o mercado paga (NTN-B e CDI no dia) e com a taxa líquida de IR.
+- Casar passivo e ativo: escada de NTN-B até o vencimento trava o retorno real do trecho financiado e elimina risco de marcação a mercado. ETFs de duração constante (IMA-B5, IRF-M) oscilam com juros.
+- Dia de choque (ex.: 26/10/2026): medir a contribuição de cada posição no retorno do dia (peso × retorno). Posições pequenas e voláteis (ações) podem pesar como grandes posições de renda fixa de juros.
+- Taxas de mercado em 13/11/2026 (Tesouro Direto): IPCA+ 2032 = 7,70%, 2040 = 7,46%, 2050 = 7,50%; Selic meta 13,75%; CDI ≈ 13,65% a.a.; IPCA 12 meses = 4,63%.

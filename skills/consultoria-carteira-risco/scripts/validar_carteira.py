@@ -109,6 +109,8 @@ def validar(itens, perfil, investidor, dados):
             continue
         if p is None:
             add("ERRO", f"'{nome}': {erro}")
+            if it.get("classe"):                      # a classe informada ainda conta nos limites do perfil
+                por_classe[norm_classe(it["classe"])] += w
             continue
         classe = norm_classe(it.get("classe") or p["classe_norm"])
         por_classe[classe] += w
