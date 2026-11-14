@@ -1,2 +1,5 @@
 __pycache__/
 *.pyc
+# dados internos da Portfel: nunca commitar
+dados_portfel/
+*.xlsx

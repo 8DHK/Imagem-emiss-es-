@@ -12,7 +12,7 @@ Ajuda o Daniel (consultor na Portfel) a montar a carteira de um cliente e a most
 - Conversa com lead frio: usar `lead-dialogue`.
 
 ## Entradas (peça o que faltar, nunca invente)
-1. **Planilha de ativos da Portfel** (diligenciada por eles). Formato de referência em `assets/modelo_ativos.csv`; histórico mensal opcional em `assets/modelo_historico_mensal.csv`. A planilha real pode ter outras colunas: mapeie com o Daniel e diga o que foi estimado.
+1. **Planilha de ativos da Portfel** (diligenciada por eles; estrutura em `references/planilha_portfel.md`: traz elegibilidade, limites por perfil e carteiras-modelo, mas **não** retorno nem volatilidade; esses vêm de premissas por classe ou de histórico dos fundos). Formato de referência em `assets/modelo_ativos.csv`; histórico mensal opcional em `assets/modelo_historico_mensal.csv`. A planilha real pode ter outras colunas: mapeie com o Daniel e diga o que foi estimado.
 2. **Cliente:** objetivo (valor em R$ reais), prazo, patrimônio inicial, aporte mensal, perfil e **perda máxima tolerada**.
 3. **Restrições:** liquidez, limite por ativo e por emissor, classes aceitas/vetadas, tributação.
 4. **Premissas de retorno real** (ex.: CDI e IPCA esperados) e regra de rebalanceamento (calendário ou banda).
