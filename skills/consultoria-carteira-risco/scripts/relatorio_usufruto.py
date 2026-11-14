@@ -5,7 +5,8 @@ Uso:  python3 relatorio_usufruto.py config.json saida.html
 Os dados do cliente ficam SÓ no config.json (nunca no repositório). Exemplo de config em ../assets/exemplo_config_usufruto.json
 Campos: subtitulo, idade, patrimonio, retirada_mensal, horizontes [80, 90], cenarios [{nome, mu, sigma, cor?}], cenario_base,
         serie_real [[rotulo, R$ mi]], retornos_recentes [[rotulo, "+0,93%"]], choque {data, itens [[nome, pp]], total_pp, nota},
-        alocacao [{classe, atual, min, max}], pontos_de_atencao [texto]
+        alocacao [{classe, atual, min, max}], pontos_de_atencao [texto],
+        fontes [[dado, valor, origem]]
 """
 import json
 import math
@@ -268,6 +269,10 @@ if CFG.get("alocacao"):
     sec.append(f"""<h2>6. Carteira e regras do perfil</h2>
 {tabela(["Classe", "Hoje", "Faixa do perfil", "Situação"], linhas)}
 <ul>{atencao}</ul>""")
+
+if CFG.get("fontes"):
+    sec.append("<h2>Fontes dos dados e premissas</h2><p class=\"sub\">Origem de cada número. Premissas do analista aparecem marcadas.</p>"
+               + tabela(["Dado ou premissa", "Valor", "Origem"], CFG["fontes"], ""))
 
 sec.append(f"""<h2>Metodologia e limites</h2>
 <ul>

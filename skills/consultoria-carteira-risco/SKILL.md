@@ -11,6 +11,13 @@ Ajuda o Daniel (consultor na Portfel) a montar a carteira de um cliente e a most
 - Redigir mensagem de WhatsApp para cliente ativo: usar `my-writing-style`.
 - Conversa com lead frio: usar `lead-dialogue`.
 
+## Regra 0: perguntar antes de calcular
+Antes de qualquer estudo de cliente, faça o briefing de `references/briefing.md` **no chat** e espere as respostas. Não rode
+simulação, gráfico ou HTML com suposição. Todo número usado precisa de origem (arquivo do cliente, resposta do Daniel, dado
+público datado ou premissa marcada e confirmada). Nunca reutilize os números dos relatórios de exemplo (perda máxima de 8%,
+aporte de R$ 40 mil, etc.), que são fictícios, nem dados de outro cliente. Não deduza se um fluxo foi aporte, vencimento ou
+retirada: pergunte. O resultado traz a tabela "Fontes dos dados e premissas".
+
 ## Entradas (peça o que faltar, nunca invente)
 1. **Planilha de ativos da Portfel** (diligenciada por eles; estrutura em `references/planilha_portfel.md`: traz elegibilidade, limites por perfil e carteiras-modelo, mas **não** retorno nem volatilidade; esses vêm de premissas por classe ou de histórico dos fundos). As regras já importadas ficam em `dados_portfel/` (cópia local, fora do git, com `meta.json` indicando título, hash e data). Se o Daniel anexar uma planilha com título ou hash diferente, reimporte com `scripts/importar_planilha_portfel.py` e avise o que mudou. Formato de referência em `assets/modelo_ativos.csv`; histórico mensal opcional em `assets/modelo_historico_mensal.csv`. A planilha real pode ter outras colunas: mapeie com o Daniel e diga o que foi estimado.
 2. **Cliente:** objetivo (valor em R$ reais), prazo, patrimônio inicial, aporte mensal, perfil e **perda máxima tolerada**.

@@ -44,3 +44,10 @@
 - **CONGELADO** na planilha da Portfel significa que o produto não recebe NOVOS aportes; não é reprovação. Posição existente é permitida. O validador só dá erro para dinheiro novo (`--novo-aporte`, e sempre nas carteiras-modelo).
 - O estudo interno do benchmark IPCA+4 é o **"Backtest Carteiras Portfel"** (HTML). Uma cópia está no OneDrive pessoal em Daniel_Memoria/portfel/Investimentos (6 MB). Ler por anexo no chat, não pelo conector, para não encher o contexto.
 - Retirar tudo no início do ano (vs mensal) reduz a chance de o dinheiro durar (ex.: 41% → 32% com IPCA+6 e vol 5%): a frequência combinada importa.
+
+## Erros de processo (nov/2026): o que não repetir
+- Comecei a calcular o estudo de um cliente sem perguntar: usei premissas minhas (volatilidade de 5%, cenários IPCA+4/5/6), inferi
+  de anotações que uma venda não foi executada e mapeei meses de um gráfico, sem confirmar. O Daniel corrigiu: a data de início
+  (nov/2025) e o que são os fluxos (um vencimento reinvestido, não aporte) eu não sabia.
+- Os números de exemplo (perda máxima de 8%, aporte de R$ 40 mil) são fictícios; não pertencem a nenhum cliente. Rotular sempre.
+- Correção: briefing obrigatório (`references/briefing.md`) e tabela de fontes no relatório.

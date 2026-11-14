@@ -44,5 +44,17 @@
  ],
  "pontos_de_atencao": [
   "Texto livre de pontos de atenção do consultor."
+ ],
+ "fontes": [
+  [
+   "Patrimônio",
+   "R$ 2.000.000",
+   "exemplo fictício"
+  ],
+  [
+   "Volatilidade 5%",
+   "premissa do analista",
+   "a confirmar com o consultor"
+  ]
  ]
 }
