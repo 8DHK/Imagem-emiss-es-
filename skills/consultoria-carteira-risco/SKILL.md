@@ -17,6 +17,15 @@ simulação, gráfico ou HTML com suposição. Todo número usado precisa de ori
 público datado ou premissa marcada e confirmada). Nunca reutilize os números dos relatórios de exemplo (perda máxima, aportes, etc.), que são fictícios, nem dados de outro cliente. Não deduza se um fluxo foi aporte, vencimento ou
 retirada: pergunte. O resultado traz a tabela "Fontes dos dados e premissas".
 
+## Estudo de carteira alternativa (carteira já montada: menor drawdown, retorno semelhante)
+Quando o Daniel pede para avaliar uma carteira existente, o estudo é um **backtest comparativo com os ativos diligenciados**:
+1. Universo: produtos da planilha da Portfel elegíveis ao perfil e ao tipo de investidor (`validar_carteira.py`), respeitando limites por classe, tetos por produto e rating. Congelado só vale para dinheiro novo.
+2. Dados: séries históricas dos ativos ou dos índices que os representam (de onde vêm: o backtest interno da Portfel, exportação do Daniel ou dado público datado). Sem série não se calcula drawdown.
+3. Carteira atual (pesos reais) e carteiras alternativas sobre a **mesma janela**; alternativas buscam retorno semelhante (a tolerância de "semelhante" é definida pelo Daniel) com menor drawdown máximo, menor tempo de recuperação e pior mês menos severo.
+4. **Perda máxima não é definida pelo analista:** apresentar um mapa retorno × drawdown com algumas alternativas e deixar a escolha para o Daniel e o cliente.
+5. Medidas: retorno anualizado, volatilidade, drawdown máximo e tempo de recuperação, pior mês, Sharpe/Sortino; janelas móveis; e, em plano de usufruto, simulação de Monte Carlo (chance de durar) para atual vs alternativas.
+6. Considerar custo de mudar a carteira: imposto sobre ganho ao vender, custos de negociação e mínimo de giro. Preferência do Daniel por ETFs de duração constante (sem travar taxa).
+
 ## Entradas (peça o que faltar, nunca invente)
 1. **Planilha de ativos da Portfel** (diligenciada por eles; estrutura em `references/planilha_portfel.md`: traz elegibilidade, limites por perfil e carteiras-modelo, mas **não** retorno nem volatilidade; esses vêm de premissas por classe ou de histórico dos fundos). As regras já importadas ficam em `dados_portfel/` (cópia local, fora do git, com `meta.json` indicando título, hash e data). Se o Daniel anexar uma planilha com título ou hash diferente, reimporte com `scripts/importar_planilha_portfel.py` e avise o que mudou. Formato de referência em `assets/modelo_ativos.csv`; histórico mensal opcional em `assets/modelo_historico_mensal.csv`. A planilha real pode ter outras colunas: mapeie com o Daniel e diga o que foi estimado.
 2. **Cliente:** objetivo (valor em R$ reais), prazo, patrimônio inicial, aporte mensal, perfil e **perda máxima tolerada**.

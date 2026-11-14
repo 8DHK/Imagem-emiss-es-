@@ -13,7 +13,8 @@ Itens sem resposta ficam como PENDENTE, nunca como suposição. Se o Daniel diss
 
 **B. Pergunta do estudo e risco**
 4. Qual decisão o estudo apoia (sustentar a retirada, adequação de risco vs benchmark, comparar com outra carteira)?
-5. Perda máxima tolerada pelo cliente (valor e janela) e se existe registro formal. Nunca usar valor de exemplo.
+5. Perda máxima tolerada: **combinada com o cliente**, não definida pelo analista (regra do material de estudo). Se não houver
+   número combinado, não assumir nenhum: mostrar o drawdown como resultado e comparar alternativas. Nunca usar valor de exemplo.
 6. Benchmark/meta: bruto ou líquido, composição, período e o documento de origem (ex.: Backtest Carteiras Portfel).
 
 **C. Escopo e premissas**
