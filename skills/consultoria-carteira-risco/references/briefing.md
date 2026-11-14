@@ -28,11 +28,11 @@ Itens sem resposta ficam como PENDENTE, nunca como suposição. Se o Daniel diss
 ## Proveniência (obrigatória no resultado)
 Todo número usado deve ter uma de quatro origens: arquivo ou documento do cliente (citar qual), resposta do Daniel,
 dado público com data, ou premissa minha (marcada e confirmada). O HTML final traz a tabela "Fontes dos dados e premissas"
-(`fontes` no config). Inferências de anotações de reunião (ex.: "o ETF das 100 maiores" = BRAX11) são marcadas como
+(`fontes` no config). Inferências de anotações de reunião (ex.: ligar a descrição de um produto a um ticker) são marcadas como
 inferência e confirmadas.
 
 ## Nunca
-- Reusar números dos exemplos fictícios (perda máxima de 8%, aporte extra de R$ 40 mil, resgate de R$ 15 mil, cliente de R$ 200 mil).
+- Reusar números dos exemplos fictícios (valores de perda máxima, aportes, resgates e patrimônio dos relatórios de exemplo).
 - Usar dado de outro cliente ou de outra reunião sem dizer.
 - Interpretar um fluxo (aporte, vencimento, retirada) sem confirmação.
 - Afirmar data de início, tolerância a perda ou combinado que não esteja em documento ou na resposta do Daniel.

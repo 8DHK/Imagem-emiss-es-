@@ -1,6 +1,6 @@
 ---
 name: consultoria-carteira-risco
-description: Use ao montar ou revisar a carteira de um cliente de consultoria de investimentos (Portfel) e ao medir ou simular risco. Cobre relatório de performance (TWR/MWR, volatilidade, drawdown, Sharpe/Sortino/beta, atribuição alocação x seleção, retorno necessário vs atual), simulação de Monte Carlo (probabilidade de atingir a meta, leque de resultados, risco de sequência, alavancas), comparação do efeito de ativos no risco da carteira (ex.: DIVO11 vs BRAX11) e rebalanceamento/alocação tática. Acionar quando Daniel compartilhar a planilha de ativos da Portfel, pedir "monte uma carteira", "simule", "relatório de performance", "esse ativo aumenta o risco?" ou "qual a chance de o cliente chegar na meta". Não é para mensagens de WhatsApp a clientes (my-writing-style) nem para leads frios (lead-dialogue).
+description: Use ao montar ou revisar a carteira de um cliente de consultoria de investimentos (Portfel) e ao medir ou simular risco. Cobre relatório de performance (TWR/MWR, volatilidade, drawdown, Sharpe/Sortino/beta, atribuição alocação x seleção, retorno necessário vs atual), simulação de Monte Carlo (probabilidade de atingir a meta, leque de resultados, risco de sequência, alavancas), comparação do efeito de ativos no risco da carteira (ex.: dois ETFs de ações) e rebalanceamento/alocação tática. Acionar quando Daniel compartilhar a planilha de ativos da Portfel, pedir "monte uma carteira", "simule", "relatório de performance", "esse ativo aumenta o risco?" ou "qual a chance de o cliente chegar na meta". Não é para mensagens de WhatsApp a clientes (my-writing-style) nem para leads frios (lead-dialogue).
 ---
 
 # Carteira, performance e risco (consultoria de investimentos)
@@ -14,8 +14,7 @@ Ajuda o Daniel (consultor na Portfel) a montar a carteira de um cliente e a most
 ## Regra 0: perguntar antes de calcular
 Antes de qualquer estudo de cliente, faça o briefing de `references/briefing.md` **no chat** e espere as respostas. Não rode
 simulação, gráfico ou HTML com suposição. Todo número usado precisa de origem (arquivo do cliente, resposta do Daniel, dado
-público datado ou premissa marcada e confirmada). Nunca reutilize os números dos relatórios de exemplo (perda máxima de 8%,
-aporte de R$ 40 mil, etc.), que são fictícios, nem dados de outro cliente. Não deduza se um fluxo foi aporte, vencimento ou
+público datado ou premissa marcada e confirmada). Nunca reutilize os números dos relatórios de exemplo (perda máxima, aportes, etc.), que são fictícios, nem dados de outro cliente. Não deduza se um fluxo foi aporte, vencimento ou
 retirada: pergunte. O resultado traz a tabela "Fontes dos dados e premissas".
 
 ## Entradas (peça o que faltar, nunca invente)
@@ -31,7 +30,7 @@ Dados do cliente chegam anonimizados (sem nome e CPF). Se vierem identificáveis
 2. **Montar 2 ou 3 carteiras candidatas** que respeitem as restrições. Para cada uma: pesos, justificativa por ativo, retorno real esperado, volatilidade, concentração por ativo/emissor, liquidez. **Valide antes de simular:** `python3 scripts/validar_carteira.py --perfil <perfil> --investidor Geral|Qualificado carteira.csv` (colunas `produto`, `peso`, opcional `classe`). Só siga com carteiras sem ERRO; leve os AVISOS ao Daniel. Sem o validador não se recomenda carteira: as regras da Portfel são a base da recomendação.
 3. **Simular** com `scripts/monte_carlo.py` (API em `references/formulas.md`). Entregue: probabilidade de atingir a meta, percentis (P5, P10, P50, P90, P95), mediana **e** média, probabilidade de queda máxima > 20/30/40%, risco de sequência (choque no início vs no fim), alavancas (aporte para 70% de chance, meta compatível com 70%, alocação), sensibilidade (retornos −1 p.p., volatilidade +20%, caudas pesadas, correlações de crise 0,8) e rebalanceamento (nenhum, anual, banda 5 p.p.).
 3b. **Plano de usufruto (carteira sem aportes, com retiradas):** `python3 scripts/analise_usufruto.py --patrimonio X --retirada Y --idade N`. Mostra quando o patrimônio acaba por retorno real, retirada sustentável por horizonte (80/90/95 anos) e capital necessário; `mc_sucesso()` e `retirada_para_prob()` dão a probabilidade de durar e a retirada com 90% de chance. Respeite a preferência do Daniel por ETFs de duração constante (sem travar taxa). Sempre confira primeiro a **taxa de retirada** (retirada anual ÷ patrimônio) e o **horizonte** (planos que terminam aos 80 ignoram longevidade). Confronte o retorno assumido no plano com as taxas de mercado (NTN-B, CDI) e com o benchmark interno.
-4. **Comparar ativos** quando perguntado "qual aumenta o risco?": correlação com a carteira, drawdown e volatilidade da carteira com cada ativo, e peso máximo dentro do drawdown tolerado (`scripts/comparar_ativos.py` é o modelo).
+4. **Comparar ativos** quando perguntado "qual aumenta o risco?": correlação com a carteira, drawdown e volatilidade da carteira com cada ativo, e peso máximo dentro do drawdown tolerado (`scripts/comparar_ativos.py` (lê dois CSVs de fechamento; o limite de drawdown vem do cliente)).
 5. **Relatório** em HTML seguindo o capítulo 6.3 (ver abaixo). Modelos prontos: `scripts/gerar_relatorio.py` (performance) e `scripts/simulacao_monte_carlo.py` com `simulacao_monte_carlo_template.html` (Monte Carlo). Rode com `python3 scripts/<script>.py caminho/saida.html`.
 6. **Entrega:** resumo curto no chat (resultado, o que decidir, limites) e o relatório publicado. Ao publicar como Artifact, remova `<!doctype>`, `<html>`, `<head>` e `<body>` do arquivo e deixe só `<title>` (nome curto, sem "— explicação") e `<style>`. Sem scripts externos.
 
@@ -48,7 +47,7 @@ Foco na **meta**, não no benchmark. Um objetivo por gráfico, e cada gráfico c
 - **Probabilidade de meta nunca sozinha.** Mostre junto o P10 e a probabilidade de queda grande: volatilidade maior pode *aumentar* P(meta) de uma meta na cauda direita e piorar o lado ruim.
 - **Rebalancear reduz risco, não aumenta retorno mediano.** Não venda como ganho de retorno.
 - **Janela curta não é conclusão.** Com menos de ~36 meses, ou com um único dia dominando o resultado, diga que é leitura preliminar.
-- **Retorno de preço ≠ retorno total.** Fontes como stockanalysis.com não ajustam proventos (ex.: DIVO11). Diga quando isso distorce.
+- **Retorno de preço ≠ retorno total.** Fontes como stockanalysis.com não ajustam proventos (ex.: ETFs de dividendos). Diga quando isso distorce.
 - **Sem promessa de resultado.** Inclua: rentabilidade passada não garante rentabilidade futura; projeções são cenários.
 - Fonte de dados dos números sempre explícita (planilha da Portfel, estimativa, premissa do Daniel).
 
@@ -64,3 +63,6 @@ Foco na **meta**, não no benchmark. Um objetivo por gráfico, e cada gráfico c
 
 ## Fontes de dados públicas (limites vistos)
 Ver `references/aprendizados.md`: o que funcionou (BCB/SGS via Firecrawl, página de histórico da stockanalysis.com) e o que não (acesso direto ao Yahoo/BCB bloqueado no ambiente em nuvem; página mostra só ~50 pregões).
+
+## Confidencialidade
+No GitHub vai só a instrução do estudo (esta skill, scripts genéricos, modelos fictícios). Nada de cliente: nome, valores, extratos, configs, planilhas internas ou HTMLs gerados. Dados de cliente ficam na sessão ou no computador do Daniel.

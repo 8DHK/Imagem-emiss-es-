@@ -30,8 +30,3 @@ Confira `meta.json` (título, hash, data) contra o arquivo anexado: a planilha m
 - Série histórica de cotas/rentabilidade. Para fundos há o CNPJ, então o caminho é o Informe Diário da CVM
   (dados abertos) ou uma exportação de terminal/plataforma que o Daniel tenha. Sem isso, usar premissas por classe
   (retorno real e volatilidade por classe) e declarar que são estimativas.
-
-## Inconsistências vistas na versão V4 (mar/2026), ao validar as carteiras-modelo
-- `DEBB11` aparece como CONGELADO em Produtos Autorizados, mas entra nas carteiras-modelo Arrojado Qualificado e Agressivo Qualificado.
-- `Trend Valor Brasil` tem teto de 5% e aparece com 7,5% na carteira-modelo Agressivo Qualificado.
-Avisar o Daniel quando uma recomendação depender de um desses itens.
