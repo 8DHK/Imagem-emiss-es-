@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulação de Monte Carlo — Exemplo</title>
+<style>
+:root{
+  --bg:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --mut:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --line:rgba(11,11,11,.10);
+  --s1:#2a78d6; --s2:#eb6834; --band:rgba(42,120,214,.10); --band2:rgba(42,120,214,.22);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --mut:#898781;
+    --grid:#2c2c2a; --axis:#383835; --line:rgba(255,255,255,.10);
+    --s1:#3987e5; --s2:#d95926; --band:rgba(57,135,229,.14); --band2:rgba(57,135,229,.28); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --mut:#898781;
+  --grid:#2c2c2a; --axis:#383835; --line:rgba(255,255,255,.10);
+  --s1:#3987e5; --s2:#d95926; --band:rgba(57,135,229,.14); --band2:rgba(57,135,229,.28); color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:860px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:1.6rem;line-height:1.2;margin:0 0 4px}
+h2{font-size:1.25rem;margin:40px 0 4px}
+h3{font-size:1.02rem;margin:26px 0 6px}
+p{margin:8px 0}
+.sub{color:var(--ink2);margin:0 0 12px}
+.aviso{border:1px solid var(--line);border-left:4px solid var(--s2);background:var(--surface);padding:12px 14px;border-radius:8px;font-size:.92rem;color:var(--ink2);margin:10px 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;margin:12px 0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:16px 0}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.kpi .l{font-size:.8rem;color:var(--ink2)}
+.kpi .v{font-size:1.65rem;font-weight:650;line-height:1.2;margin:2px 0}
+.kpi .n{font-size:.82rem;color:var(--ink2)}
+.chart{width:100%;height:auto;display:block;overflow:visible}
+.grid{stroke:var(--grid);stroke-width:1}
+.axis{stroke:var(--axis);stroke-width:1}
+.tick{fill:var(--mut);font-size:11px;font-variant-numeric:tabular-nums}
+.dlabel{fill:var(--ink);font-size:12px}
+.band{fill:var(--band)} .band2{fill:var(--band2)}
+.xhair{stroke:var(--axis);stroke-width:1}
+.wrap{position:relative}
+.tip{position:absolute;pointer-events:none;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.8rem;box-shadow:0 4px 16px rgba(0,0,0,.14);display:none;z-index:2;white-space:nowrap}
+.tip b{display:block;margin-bottom:2px}
+.leg{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.82rem;color:var(--ink2);margin:8px 0 0}
+.leg i{display:inline-block;width:16px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--ink2);font-size:.78rem}
+table.num td:not(:first-child){font-variant-numeric:tabular-nums}
+table.small{font-size:.8rem}
+details{margin:8px 0} summary{cursor:pointer;color:var(--ink2);font-size:.85rem}
+ul{padding-left:20px;margin:8px 0} li{margin:5px 0}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:1px 10px;font-size:.78rem;color:var(--ink2)}
+footer{margin-top:40px;color:var(--ink2);font-size:.8rem}
+@media (max-width:520px){h1{font-size:1.35rem}.kpi .v{font-size:1.4rem}}
+</style>
+</head>
+<body>
+<main>
+<p class="sub">Exemplo de simulação · Cliente hipotético de 35 anos · Premissas do texto</p>
+<h1>Probabilidade de atingir o objetivo: simulação de Monte Carlo</h1>
+<div class="aviso"><strong>Premissas hipotéticas.</strong> Retornos, volatilidades e correlações são as do exemplo do texto de modelagem de risco, em termos reais. Não são previsão de mercado nem recomendação. Rentabilidade passada não garante rentabilidade futura.</div>
+
+<div class="kpis">
+  <div class="kpi"><div class="l">Probabilidade de atingir R$ 5 mi (real)</div><div class="v">%%P_META%%</div><div class="n">em %%N%% trajetórias de 30 anos. O texto cita 65% como ilustração; com as próprias premissas dele o resultado é este.</div></div>
+  <div class="kpi"><div class="l">Patrimônio mediano aos 65</div><div class="v">%%MED%%</div><div class="n">Média %%MEDIA%%. O cenário de retorno médio fixo (%%RET%% a.a.) dá %%DET%%.</div></div>
+  <div class="kpi"><div class="l">Aporte para 70% de chance</div><div class="v">%%APORTE70%%/mês</div><div class="n">hoje R$ 1.000. Ou, mantendo o aporte, uma meta de %%META70%%.</div></div>
+</div>
+<p><span class="pill">⚠ Meta pouco provável</span> Com R$ 200 mil, R$ 1.000 por mês e retorno real esperado de %%RET%% a.a., a meta de R$ 5 milhões só é alcançada nas trajetórias mais favoráveis. A decisão do cliente é qual alavanca ajustar (seção 5).</p>
+
+<h2>1. Premissas</h2>
+<p class="sub">Carteira de 60% ações globais, 30% títulos públicos indexados à inflação e 10% títulos privados, rebalanceada uma vez por ano. Aporte de R$ 1.000 por mês, patrimônio inicial de R$ 200 mil, horizonte de 30 anos, valores em R$ de hoje.</p>
+%%TAB_PREM%%
+%%TAB_CORR%%
+<p>Os retornos mensais são log-normais e correlacionados por decomposição de Cholesky da matriz de covariância. O retorno esperado da carteira é %%RET%% a.a. real e a volatilidade é %%VOL%% a.a.</p>
+<p class="sub">Atenção às premissas: 9% reais ao ano para ações globais é otimista. Pequenas mudanças aqui movem muito o resultado (seção 6).</p>
+
+<h2>2. Distribuição do patrimônio aos 65 anos</h2>
+<h3 id="g1-t">Leque de trajetórias (R$ milhões reais)</h3>
+<p class="sub">A faixa escura vai do 25º ao 75º percentil; a clara, do 5º ao 95º. A linha tracejada cinza é o cenário linear de retorno médio fixo.</p>
+<div class="card wrap" data-chart="g1">%%G1%%<div class="tip"></div>
+<div class="leg"><span><i style="background:var(--band2)"></i>P25–P75</span><span><i style="background:var(--band)"></i>P5–P95</span></div></div>
+<details><summary>Ver dados do gráfico</summary>%%TAB_G1%%</details>
+
+<h3 id="g2-t">Onde terminam as trajetórias</h3>
+<p class="sub">Barras em azul são as faixas que atingem a meta de R$ 5 mi.</p>
+<div class="card">%%G2%%</div>
+%%TAB_PCT%%
+<p>Leitura para o cliente: há 10% de chance de terminar abaixo de %%P10%%, metade dos cenários termina abaixo de %%MED%%, e apenas 10% passam de %%P90%%. A média (%%MEDIA%%) fica acima da mediana (%%MED%%) porque poucas trajetórias muito boas puxam a média, e por isso a mediana é o indicador central mais honesto.</p>
+
+<h2>3. Risco de queda ao longo do caminho</h2>
+<p class="sub">Medida sobre o índice de retorno (sem os aportes), em cada trajetória.</p>
+%%TAB_DD%%
+<p>Em %%PDD20%% das trajetórias o cliente vê uma queda de mais de 20% em algum momento, e em %%PDD30%% de mais de 30%. Essas probabilidades dão uma base objetiva para conversar sobre tolerância a risco, em vez de rotular o cliente como conservador, moderado ou agressivo.</p>
+
+<h3>Risco de sequência</h3>
+<p class="sub">Mesma carteira, com ações caindo 30%, 10% e 0% em três anos seguidos, no início ou no fim da carreira de acumulação.</p>
+%%TAB_EST%%
+<p>Os mesmos três anos ruins custam mais no fim: a mediana cai para %%EST_TARDE%% (contra %%EST_CEDO%% no início e %%BASE_MED%% sem choque), porque no fim o patrimônio é grande e os aportes pesam pouco. Um plano precisa de proteção maior perto da data do objetivo.</p>
+
+<h2>4. Alocação e risco: a troca entre probabilidade e queda</h2>
+<h3 id="g3-t">Probabilidade de atingir R$ 5 mi por alocação</h3>
+<div class="card">%%G3%%</div>
+<h3 id="g4-t">Probabilidade de queda maior que 30% em algum momento</h3>
+<div class="card">%%G4%%</div>
+%%TAB_ALOC%%
+<p>Mais ações aumentam a chance de bater a meta, mas a custo alto de risco: com 80/10/10 a probabilidade de atingir R$ 5 mi sobe para %%AGR_PMETA%%, e a de uma queda acima de 30% vai a %%AGR_PDD%%. Com 100% ações a probabilidade é %%ACOES_PMETA%% e a de queda acima de 30% chega a %%ACOES_PDD%%. Nenhuma alocação plausível leva a meta perto de 70%.</p>
+
+<h2>5. O que o cliente pode decidir</h2>
+%%TAB_ALAV%%
+<p>Se o cliente achar a probabilidade baixa demais, a simulação é rodada de novo a cada ajuste. O ponto de partida honesto é que, sem mudar aporte, meta ou risco, a meta atual é improvável.</p>
+
+<h2>6. Sensibilidade às premissas</h2>
+%%TAB_SENS%%
+<p>Reduzir 1 p.p. dos retornos derruba a probabilidade para %%SENS_MU%%. Volatilidade maior <em>eleva</em> a probabilidade de bater uma meta que está na cauda direita da distribuição, mas piora o lado ruim (P10 cai de %%BASE_P10%% para %%SENS_VOL10%%). Por isso a probabilidade de atingir a meta nunca deve ser lida sozinha. Caudas pesadas (t de Student) mudam pouco o resultado final em 30 anos (%%SENS_T%%), mas aumentam os extremos mês a mês.</p>
+
+<h2>7. Alocação estratégica, tática e rebalanceamento</h2>
+<h3>7.1 Rebalanceamento linear (exemplo da carteira de R$ 1 milhão)</h3>
+<p class="sub">A posição de ações foi a 65%, títulos a 28% e imóveis a 7%, contra o alvo 60/30/10. Valor a negociar = valor total × peso-alvo − valor atual.</p>
+%%TAB_LIN%%
+
+<h3>7.2 Rebalancear reduz risco, não aumenta retorno</h3>
+<p class="sub">Mesmas trajetórias, três regras: nunca rebalancear, rebalancear uma vez por ano, ou rebalancear quando algum peso se afasta mais de 5 p.p. do alvo.</p>
+%%TAB_REB%%
+<p>Sem rebalancear, a mediana final é maior (%%REB_NENHUM%% contra %%REB_ANUAL%%), porque as ações, que rendem mais, acabam dominando a carteira. O preço é o risco: a probabilidade de queda acima de 30% sobe de %%REB_PDD_ANUAL%% para %%REB_PDD_NENHUM%%. O rebalanceamento mantém o risco que o cliente aceitou. A regra por banda de 5 p.p. dá o mesmo resultado que a anual, com cerca de %%REB_EV_BANDA%% operações em 30 anos em vez de 30, o que importa pelo custo e pelo imposto.</p>
+
+<h3>7.3 Efeito de um desvio tático</h3>
+<p class="sub">Sobreposição de +5 p.p. em ações (65/25/10) sobre a base estratégica 60/30/10.</p>
+%%TAB_TAT%%
+<p>O desvio tático acrescenta pouco retorno esperado (%%TAT_RET%% contra %%RET%%) e eleva a volatilidade para %%TAT_VOL%% e a probabilidade de queda acima de 30% para %%TAT_PDD%%. O retorno extra só compensa se a visão de mercado estiver certa, por isso o desvio precisa de limite de tamanho, prazo e critério de saída definidos antes.</p>
+
+<h3>7.4 Gatilhos técnicos</h3>
+<ul>
+  <li><strong>Calendário:</strong> rebalancear em datas fixas (trimestral ou anual).</li>
+  <li><strong>Banda:</strong> rebalancear quando o desvio passa do limite (aqui, 5 p.p.).</li>
+  <li><strong>Z-score:</strong> z = (retorno − média histórica) ÷ desvio-padrão. Exige a série histórica real de cada classe.</li>
+  <li><strong>Volatilidade e correlação:</strong> alerta quando a volatilidade recente passa de um múltiplo do histórico, ou quando as correlações sobem de forma abrupta. Também exige dados reais.</li>
+</ul>
+<p>Os dois primeiros gatilhos foram simulados acima. Os dois últimos dependem de séries históricas reais (B3, CVM e BCB) e entram quando houver base de dados do cliente.</p>
+
+<h2>Metodologia e limites</h2>
+<ul>
+  <li>%%N%% trajetórias de 360 meses. Aportes mensais compram a alocação-alvo, com rebalanceamento anual (salvo onde indicado).</li>
+  <li>Retornos reais; a inflação não é modelada separadamente, o que ignora o risco de inflação inesperada.</li>
+  <li>Retornos log-normais calibrados para que as médias e volatilidades anuais batam com as premissas do texto.</li>
+  <li>Queda máxima medida sobre o índice de retorno mensal, não diário.</li>
+  <li>Sem custos, impostos nem fase de retirada. A fase de distribuição, em que o risco de sequência pesa mais, não foi simulada.</li>
+  <li>Resultados dependem das premissas. Os números aqui são o que o modelo entrega com as premissas do exemplo, não previsão.</li>
+</ul>
+<footer>Gerado por <code>relatorio/simulacao_monte_carlo.py</code> · semente fixa · conteúdo para revisão do consultor antes de qualquer envio ao cliente.</footer>
+</main>
+<script>
+const CH = %%CHARTS_JSON%%;
+document.querySelectorAll('.wrap[data-chart]').forEach(box=>{
+  const cfg=CH[box.dataset.chart], svg=box.querySelector('svg'), tip=box.querySelector('.tip');
+  const xh=svg.querySelector('.xhair'), hit=svg.querySelector('.hit');
+  hit.addEventListener('pointermove',e=>{
+    const r=svg.getBoundingClientRect(), sc=cfg.w/r.width, x=(e.clientX-r.left)*sc;
+    let k=0,b=1e9; cfg.xs.forEach((v,i)=>{const d=Math.abs(v-x); if(d<b){b=d;k=i}});
+    xh.setAttribute('x1',cfg.xs[k]); xh.setAttribute('x2',cfg.xs[k]); xh.setAttribute('visibility','visible');
+    tip.innerHTML='<b>'+cfg.xlabels[k]+'</b>'+cfg.rows[k].map(t=>'<div>'+t+'</div>').join('');
+    tip.style.display='block';
+    const bx=box.getBoundingClientRect(), px=cfg.xs[k]/sc+(r.left-bx.left), tw=tip.offsetWidth;
+    tip.style.left=Math.min(Math.max(px+12,4),bx.width-tw-4)+'px'; tip.style.top='12px';
+  });
+  hit.addEventListener('pointerleave',()=>{xh.setAttribute('visibility','hidden');tip.style.display='none'});
+});
+</script>
+</body>
+</html>
