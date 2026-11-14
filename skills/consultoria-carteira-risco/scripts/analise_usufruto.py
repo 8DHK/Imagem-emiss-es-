@@ -39,27 +39,38 @@ def retirada_sustentavel(pv, r, anos):
     return pv / (12 * capital_necessario(1 / 12, r, anos)) if r else pv / (12 * anos)
 
 
-def mc_sucesso(pv, saque_mes, mu, sigma, anos, n=10_000, seed=2026, z=None):
-    """Probabilidade de o patrimônio durar `anos` e percentis do que sobra."""
+def mc_paths(pv, saque_mes, mu, sigma, anos, n=10_000, seed=2026, z=None, freq_meses=1):
+    """Trajetórias mensais do patrimônio real (n, meses+1). Retirada de saque_mes*freq_meses no início de cada período
+    (freq 1 = mensal, 6 = semestral, 12 = anual). Esgotado = 0."""
     meses = anos * 12
-    z = np.random.default_rng(seed).standard_normal((n, meses)) if z is None else z[:, :meses]
+    z = np.random.default_rng(seed).standard_normal((n, meses)) if z is None else z[:n, :meses]
+    n = z.shape[0]
     s_ln = math.sqrt(math.log(1 + (sigma / (1 + mu)) ** 2))
     m_ln = math.log(1 + mu) - s_ln ** 2 / 2
-    r = np.exp(m_ln / 12 + z * s_ln / math.sqrt(12))          # fator mensal
+    r = np.exp(m_ln / 12 + z * s_ln / math.sqrt(12))
     v = np.full(n, float(pv))
-    vivo = np.ones(n, bool)
+    out = np.empty((n, meses + 1)); out[:, 0] = pv
     for t in range(meses):
-        v = np.where(vivo, (v - saque_mes) * r[:, t], 0.0)
-        vivo &= v > 0
-    return float(vivo.mean()), {q: float(np.percentile(v, q)) for q in (10, 50, 90)}
+        if t % freq_meses == 0:
+            v = np.maximum(v - saque_mes * freq_meses, 0.0)
+        v = v * r[:, t]
+        out[:, t + 1] = v
+    return out
 
 
-def retirada_para_prob(pv, mu, sigma, anos, prob, n=6000, seed=2026):
+def mc_sucesso(pv, saque_mes, mu, sigma, anos, n=10_000, seed=2026, z=None, freq_meses=1):
+    """Probabilidade de o patrimônio durar `anos` e percentis do que sobra."""
+    p = mc_paths(pv, saque_mes, mu, sigma, anos, n, seed, z, freq_meses)
+    fim = p[:, -1]
+    return float((fim > 0).mean()), {q: float(np.percentile(fim, q)) for q in (10, 50, 90)}
+
+
+def retirada_para_prob(pv, mu, sigma, anos, prob, n=6000, seed=2026, freq_meses=1):
     z = np.random.default_rng(seed).standard_normal((n, anos * 12))
     lo, hi = 0.0, pv / 12
     for _ in range(28):
         mid = (lo + hi) / 2
-        p, _ = mc_sucesso(pv, mid, mu, sigma, anos, n, seed, z)
+        p, _ = mc_sucesso(pv, mid, mu, sigma, anos, n, seed, z, freq_meses)
         lo, hi = (mid, hi) if p >= prob else (lo, mid)
     return lo
 

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estudo de Usufruto</title>
+<style>
+:root{
+  --bg:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --mut:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --line:rgba(11,11,11,.10);
+  --s1:#2a78d6; --s2:#eb6834; --band:rgba(42,120,214,.10); --band2:rgba(42,120,214,.22);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --mut:#898781;
+    --grid:#2c2c2a; --axis:#383835; --line:rgba(255,255,255,.10);
+    --s1:#3987e5; --s2:#d95926; --band:rgba(57,135,229,.14); --band2:rgba(57,135,229,.28); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --mut:#898781;
+  --grid:#2c2c2a; --axis:#383835; --line:rgba(255,255,255,.10);
+  --s1:#3987e5; --s2:#d95926; --band:rgba(57,135,229,.14); --band2:rgba(57,135,229,.28); color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:860px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:1.6rem;line-height:1.2;margin:0 0 4px}
+h2{font-size:1.25rem;margin:40px 0 4px}
+h3{font-size:1.02rem;margin:26px 0 6px}
+p{margin:8px 0}
+.sub{color:var(--ink2);margin:0 0 12px}
+.aviso{border:1px solid var(--line);border-left:4px solid var(--s2);background:var(--surface);padding:12px 14px;border-radius:8px;font-size:.92rem;color:var(--ink2);margin:10px 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;margin:12px 0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:16px 0}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.kpi .l{font-size:.8rem;color:var(--ink2)}
+.kpi .v{font-size:1.65rem;font-weight:650;line-height:1.2;margin:2px 0}
+.kpi .n{font-size:.82rem;color:var(--ink2)}
+.chart{width:100%;height:auto;display:block;overflow:visible}
+.grid{stroke:var(--grid);stroke-width:1}
+.axis{stroke:var(--axis);stroke-width:1}
+.tick{fill:var(--mut);font-size:11px;font-variant-numeric:tabular-nums}
+.dlabel{fill:var(--ink);font-size:12px}
+.band{fill:var(--band)} .band2{fill:var(--band2)}
+.xhair{stroke:var(--axis);stroke-width:1}
+.wrap{position:relative}
+.tip{position:absolute;pointer-events:none;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.8rem;box-shadow:0 4px 16px rgba(0,0,0,.14);display:none;z-index:2;white-space:nowrap}
+.tip b{display:block;margin-bottom:2px}
+.leg{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.82rem;color:var(--ink2);margin:8px 0 0}
+.leg i{display:inline-block;width:16px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.seg{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.segb{font:inherit;font-size:.85rem;color:var(--ink2);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer}
+.segb.on{color:var(--ink);border-color:var(--s1);box-shadow:inset 0 0 0 1px var(--s1)}
+.segb:focus-visible{outline:2px solid var(--s1);outline-offset:2px}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--ink2);font-size:.78rem}
+table.num td:not(:first-child){font-variant-numeric:tabular-nums}
+ul{padding-left:20px;margin:8px 0} li{margin:5px 0}
+footer{margin-top:40px;color:var(--ink2);font-size:.8rem}
+@media (max-width:520px){h1{font-size:1.35rem}.kpi .v{font-size:1.4rem}}
+</style>
+</head>
+<body>
+<main>
+<p class="sub">%%SUB%%</p>
+<h1>Estudo de usufruto</h1>
+<div class="aviso"><strong>Simulação, não previsão.</strong> Premissas de retorno e volatilidade são hipóteses do analista. Conteúdo para revisão do consultor.</div>
+%%CORPO%%
+<footer>Gerado por <code>relatorio_usufruto.py</code> · semente fixa · rentabilidade passada não garante rentabilidade futura.</footer>
+</main>
+<script>
+const CH = %%CHARTS_JSON%%;
+document.querySelectorAll('.wrap[data-chart]').forEach(box=>{
+  const cfg=CH[box.dataset.chart], svg=box.querySelector('svg'), tip=box.querySelector('.tip');
+  if(!cfg||!svg) return;
+  const xh=svg.querySelector('.xhair'), hit=svg.querySelector('.hit');
+  hit.addEventListener('pointermove',e=>{
+    const r=svg.getBoundingClientRect(), sc=cfg.w/r.width, x=(e.clientX-r.left)*sc;
+    let k=0,b=1e9; cfg.xs.forEach((v,i)=>{const d=Math.abs(v-x); if(d<b){b=d;k=i}});
+    xh.setAttribute('x1',cfg.xs[k]); xh.setAttribute('x2',cfg.xs[k]); xh.setAttribute('visibility','visible');
+    tip.innerHTML='<b>'+cfg.xlabels[k]+'</b>'+cfg.rows[k].map(t=>'<div>'+t+'</div>').join('');
+    tip.style.display='block';
+    const bx=box.getBoundingClientRect(), px=cfg.xs[k]/sc+(r.left-bx.left), tw=tip.offsetWidth;
+    tip.style.left=Math.min(Math.max(px+12,4),bx.width-tw-4)+'px'; tip.style.top='12px';
+  });
+  hit.addEventListener('pointerleave',()=>{xh.setAttribute('visibility','hidden');tip.style.display='none'});
+});
+document.querySelectorAll('.segb').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('.segb').forEach(b=>b.classList.toggle('on',b===btn));
+  document.querySelectorAll('.scen').forEach(s=>{s.hidden = s.dataset.s!==btn.dataset.s;});
+}));
+</script>
+</body>
+</html>

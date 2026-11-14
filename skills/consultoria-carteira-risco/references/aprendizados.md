@@ -36,6 +36,11 @@
 - Probabilidade de sucesso de um plano determinístico que termina perto de zero é baixa (≈40% com retorno igual ao assumido): a retirada sustentável com 90% de chance é bem menor que a do cenário constante.
 - Taxa de retirada acima de ~4-5% ao ano para quem tem 50+ anos pede ajuste de retirada, de horizonte ou de retorno. A volatilidade do portfólio muda pouco esse quadro; reduzir volatilidade sem reduzir retirada não resolve.
 - Benchmark é régua de retorno, não de risco. Baixar a meta (ex.: IPCA+4) só reduz volatilidade se a composição mudar (menos duration, menos prefixado e ações). Sempre comparar a meta com o que o mercado paga (NTN-B e CDI no dia) e com a taxa líquida de IR.
-- Casar passivo e ativo: escada de NTN-B até o vencimento trava o retorno real do trecho financiado e elimina risco de marcação a mercado. ETFs de duração constante (IMA-B5, IRF-M) oscilam com juros.
+- NTN-B levada ao vencimento garante a taxa de compra, mas NÃO tira a volatilidade (a marcação a mercado continua). ETF de duração constante (IMA-B5, IRF-M) cumpre papel parecido, sem a previsibilidade de vencimento, o que pode aumentar ou diminuir o ganho. O Daniel não gosta de travar taxa: não propor escada de NTN-B como solução; modelar a carteira por retorno e volatilidade médios.
 - Dia de choque (ex.: 26/10/2026): medir a contribuição de cada posição no retorno do dia (peso × retorno). Posições pequenas e voláteis (ações) podem pesar como grandes posições de renda fixa de juros.
 - Taxas de mercado em 13/11/2026 (Tesouro Direto): IPCA+ 2032 = 7,70%, 2040 = 7,46%, 2050 = 7,50%; Selic meta 13,75%; CDI ≈ 13,65% a.a.; IPCA 12 meses = 4,63%.
+
+## Correções de entendimento (Daniel, nov/2026)
+- **CONGELADO** na planilha da Portfel significa que o produto não recebe NOVOS aportes; não é reprovação. Posição existente é permitida. O validador só dá erro para dinheiro novo (`--novo-aporte`, e sempre nas carteiras-modelo).
+- O estudo interno do benchmark IPCA+4 é o **"Backtest Carteiras Portfel"** (HTML). Uma cópia está no OneDrive pessoal em Daniel_Memoria/portfel/Investimentos (6 MB). Ler por anexo no chat, não pelo conector, para não encher o contexto.
+- Retirar tudo no início do ano (vs mensal) reduz a chance de o dinheiro durar (ex.: 41% → 32% com IPCA+6 e vol 5%): a frequência combinada importa.

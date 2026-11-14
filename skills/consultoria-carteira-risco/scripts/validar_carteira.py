@@ -8,7 +8,7 @@ carteira.csv: colunas  produto  (nome, CNPJ ou ticker),  peso  (0,05 | 5% | 5), 
 Antes de usar, importe a planilha:  python3 importar_planilha_portfel.py Planilha.xlsx
 
 ERRO = viola regra da planilha; AVISO = exige conferência do consultor; INFO = resumo.
-Cobre: limites por classe e grupo do perfil; produto fora da lista, congelado ou só para qualificado; teto por produto
+Cobre: limites por classe e grupo do perfil; produto fora da lista, congelado (só vale para novo aporte) ou só para qualificado; teto por produto
 ("Alocação Máx."); FIDC (vetado para conservador, 2,5%); gestão ativa (5% por fundo; 10% por gestora, só por aproximação);
 rating C; soma de pesos. Não cobre: faixas S1-S5 por banco, Carteiras Finclass em conjunto e liquidez mínima do cliente.
 """
@@ -81,7 +81,7 @@ def generico(termo, tipo=""):
     return t.startswith("soberano") or "checartabela" in t or chave(tipo).startswith(("bancario", "tesouro"))
 
 
-def validar(itens, perfil, investidor, dados):
+def validar(itens, perfil, investidor, dados, novo_aporte=False):
     produtos, limites, _, regras, meta = dados
     res = []                                    # (nivel, mensagem)
     add = lambda n, m: res.append((n, m))
@@ -116,7 +116,10 @@ def validar(itens, perfil, investidor, dados):
         por_classe[classe] += w
         risco[p["risco"]] += w
         if p["congelado"] == "1":
-            add("ERRO", f"{p['nome']}: produto CONGELADO (sem novas alocações)")
+            if novo_aporte:
+                add("ERRO", f"{p['nome']}: produto CONGELADO, não recebe novas alocações")
+            else:
+                add("INFO", f"{p['nome']}: congelado (sem novos aportes); manter a posição existente é permitido")
         if p["qualificado"] == "1" and investidor != "Qualificado":
             add("ERRO", f"{p['nome']}: exclusivo para investidor qualificado")
         if p["tipo"] == "FIDC":
@@ -186,6 +189,7 @@ if __name__ == "__main__":
     ap.add_argument("--perfil", required=True)
     ap.add_argument("--investidor", default="Geral", choices=["Geral", "Qualificado"])
     ap.add_argument("--modelo", help="valida uma carteira-modelo da planilha (ex.: 'Moderado')")
+    ap.add_argument("--novo-aporte", action="store_true", help="a carteira é dinheiro novo (congelado vira ERRO). Padrão: posição existente")
     ap.add_argument("--dados", default=str(Path(__file__).resolve().parent.parent / "dados_portfel"))
     a = ap.parse_args()
     dados = carregar_dados(a.dados)
@@ -202,7 +206,7 @@ if __name__ == "__main__":
         itens = ler_csv(a.carteira)
     else:
         sys.exit("informe carteira.csv ou --modelo")
-    resultado = validar(itens, a.perfil, a.investidor, dados)
+    resultado = validar(itens, a.perfil, a.investidor, dados, novo_aporte=bool(a.modelo) or a.novo_aporte)
     for nivel in ("ERRO", "AVISO", "INFO"):
         for n, m in resultado:
             if n == nivel:

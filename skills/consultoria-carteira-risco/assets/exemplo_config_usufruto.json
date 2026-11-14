@@ -1,0 +1,48 @@
+{
+ "subtitulo": "Exemplo fictício · cliente de 55 anos",
+ "idade": 55,
+ "patrimonio": 2000000,
+ "retirada_mensal": 10000,
+ "horizontes": [
+  80,
+  90
+ ],
+ "cenarios": [
+  {
+   "nome": "IPCA+4%",
+   "mu": 0.04,
+   "sigma": 0.05
+  },
+  {
+   "nome": "IPCA+6%",
+   "mu": 0.06,
+   "sigma": 0.05
+  }
+ ],
+ "cenario_base": 1,
+ "serie_real": [
+  [
+   "jan",
+   1.98
+  ],
+  [
+   "fev",
+   2.0
+  ],
+  [
+   "mar",
+   2.01
+  ]
+ ],
+ "alocacao": [
+  {
+   "classe": "Renda Fixa - CDI",
+   "atual": 0.3,
+   "min": 0.3,
+   "max": 0.6
+  }
+ ],
+ "pontos_de_atencao": [
+  "Texto livre de pontos de atenção do consultor."
+ ]
+}
