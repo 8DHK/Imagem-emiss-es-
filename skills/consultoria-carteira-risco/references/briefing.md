@@ -4,6 +4,9 @@ Regra: **perguntar primeiro, calcular depois.** Não inicie contas, gráficos ou
 Itens sem resposta ficam como PENDENTE, nunca como suposição. Se o Daniel disser "não sei", registre como
 "premissa minha, a confirmar" e diga o impacto.
 
+## Antes de perguntar: procure a resposta nos arquivos do cliente
+Pasta do cliente, notas de corretagem, relatórios e extratos do custodiante, planos e anotações. Pergunte só o que não estiver lá.
+
 ## Perguntas (adaptar ao caso, mas cobrir todos os blocos)
 **A. Histórico do cliente**
 1. Data exata de início da consultoria e patrimônio inicial, por instituição.
